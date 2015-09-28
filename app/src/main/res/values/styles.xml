@@ -1,0 +1,59 @@
+<resources>
+
+    <declare-styleable name="RsenRadioGroup">
+        <attr name="radioButton" format="reference" />
+    </declare-styleable>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="radioButton">@style/StylePlatformRadioButton</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="PopupTipWindowAnim">
+        <item name="android:windowEnterAnimation">@anim/tran_rtol</item>
+        <item name="android:windowExitAnimation">@anim/alpha_1to0</item>
+    </style>
+
+    <style name="StylePlatformRadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:padding">5dp</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/platform_rb_selector</item>
+        <item name="android:textColor">@drawable/platform_tx_selector</item>
+    </style>
+
+    <style name="StyleNum">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:background">@drawable/num_bg_selector</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@drawable/platform_tx_selector</item>
+    </style>
+
+    <style name="StyleCheckButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@drawable/check_bt_selector</item>
+        <item name="android:gravity">center</item>
+        <item name="android:button">@null</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:textColor">@drawable/platform_tx_selector</item>
+    </style>
+</resources>

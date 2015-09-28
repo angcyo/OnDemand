@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <!--左侧-->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.3"
+            android:background="@color/dim_bg"
+            android:orientation="vertical">
+
+            <com.angcyo.ondemand.view.RsenRadioGroup
+                android:id="@+id/rg_platform"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                android:gravity="center_vertical"
+                android:orientation="vertical" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="已添加单号列表"
+                android:textColor="@color/colorAccent" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5" />
+        </LinearLayout>
+
+        <!--右侧-->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.7"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:paddingTop="30dp">
+
+                <EditText
+                    android:id="@+id/oddnum"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:hint="订单号"
+                    android:singleLine="true" />
+            </android.support.design.widget.TextInputLayout>
+
+            <Button
+                android:id="@+id/add"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/login_bg_selector"
+                android:gravity="center"
+                android:text="添加单号"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/ok"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/login_bg_selector"
+                android:gravity="center"
+                android:text="配送开始"
+                android:textColor="@android:color/white" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/num1"
+                    style="@style/StyleNum"
+                    android:text="1" />
+
+                <TextView
+                    android:id="@+id/num2"
+                    style="@style/StyleNum"
+                    android:layout_toRightOf="@id/num1"
+                    android:text="2" />
+
+                <TextView
+                    android:id="@+id/num3"
+                    style="@style/StyleNum"
+                    android:layout_toRightOf="@id/num2"
+                    android:text="3" />
+
+                <TextView
+                    android:id="@+id/num4"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num1"
+                    android:text="4" />
+
+                <TextView
+                    android:id="@+id/num5"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num2"
+                    android:layout_toRightOf="@id/num4"
+                    android:text="5" />
+
+                <TextView
+                    android:id="@+id/num6"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num3"
+                    android:layout_toRightOf="@id/num5"
+                    android:text="6" />
+
+                <TextView
+                    android:id="@+id/num7"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num4"
+                    android:text="7" />
+
+                <TextView
+                    android:id="@+id/num8"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num5"
+                    android:layout_toRightOf="@id/num7"
+                    android:text="8" />
+
+                <TextView
+                    android:id="@+id/num9"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num6"
+                    android:layout_toRightOf="@id/num8"
+                    android:text="9" />
+
+                <TextView
+                    android:id="@+id/num10"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num7"
+                    android:clickable="false" />
+
+                <TextView
+                    android:id="@+id/num0"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num8"
+                    android:layout_toRightOf="@id/num10"
+                    android:text="0" />
+
+                <TextView
+                    android:id="@+id/num11"
+                    style="@style/StyleNum"
+                    android:layout_below="@id/num9"
+                    android:layout_toRightOf="@id/num0"
+                    android:text="←" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
