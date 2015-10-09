@@ -10,6 +10,27 @@ public class MD5 {
     /***
      * MD5加码 生成32位md5码
      */
+    public static String toMD5(String source) {
+        MessageDigest mDigest = null;
+        StringBuffer hexString = new StringBuffer();
+        try {
+            mDigest = MessageDigest.getInstance("MD5");
+            mDigest.update(source.getBytes("UTF-8"));
+            byte[] md5bytes = mDigest.digest();
+            for (byte b : md5bytes) {
+                if ((b & 0xFF) < 0x10)
+                    hexString.append("0");
+                hexString.append(Integer.toHexString(b & 0xFF));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hexString.toString();
+    }
+
+    /***
+     * MD5加码 生成48位md5码
+     */
     public static String string2MD5(String inStr) {
         MessageDigest md5 = null;
         try {

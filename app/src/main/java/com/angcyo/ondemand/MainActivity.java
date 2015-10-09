@@ -22,6 +22,7 @@ import com.angcyo.ondemand.control.RTableControl;
 import com.angcyo.ondemand.event.EventException;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.event.EventOddnumOk;
+import com.angcyo.ondemand.event.EventUpdateAdapter;
 import com.angcyo.ondemand.model.OddnumBean;
 import com.angcyo.ondemand.model.TablePlatform;
 import com.angcyo.ondemand.util.PopupTipWindow;
@@ -29,6 +30,7 @@ import com.angcyo.ondemand.util.Util;
 import com.angcyo.ondemand.view.AddItemAdapter;
 import com.angcyo.ondemand.view.RsenRadioGroup;
 import com.angcyo.ondemand.view.SparseExitFragment;
+import com.orhanobut.hawk.Hawk;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -149,6 +151,7 @@ public class MainActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            Hawk.put(LoginActivity.KEY_USER_PW, "");
             OdApplication.userInfo = null;
             launchActivity(LoginActivity.class);
             super.onBackPressed();
@@ -226,6 +229,11 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(SparseExitFragment.ExitEvent event) {
         super.onBackPressed();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void onEvent(EventUpdateAdapter event) {
+        recycle.getAdapter().notifyDataSetChanged();
     }
 
     @Subscribe(threadMode = ThreadMode.MainThread)
