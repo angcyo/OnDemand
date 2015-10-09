@@ -14,8 +14,10 @@ import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.model.TableCompany;
 import com.angcyo.ondemand.model.TableMember;
 import com.angcyo.ondemand.model.UserInfo;
+import com.angcyo.ondemand.util.MD5;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
+import com.orhanobut.hawk.Hawk;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -28,6 +30,9 @@ import de.greenrobot.event.ThreadMode;
  * Created by angcyo on 15-09-27-027.
  */
 public class LoginActivity extends BaseActivity {
+    public static String KEY_USER_NAME = "user_name";
+    public static String KEY_USER_PW = "user_pw";
+    public static String KEY_USER_COMPANY = "user_company";
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.phone)
@@ -38,10 +43,8 @@ public class LoginActivity extends BaseActivity {
     EditText company;
     @Bind(R.id.login)
     Button login;
-
     String strPhone, strPw, strCompany;
     UserInfo userInfo;
-
 
     @Override
     protected void initView(Bundle savedInstanceState) {
@@ -55,9 +58,9 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     protected void initAfter() {
-        phone.setText("22222222222");
-        pw.setText("6666");
-        company.setText("顺丰快递");
+        phone.setText(((String) Hawk.get(KEY_USER_NAME)));
+        pw.setText(((String) Hawk.get(KEY_USER_PW)));
+        company.setText(((String) Hawk.get(KEY_USER_COMPANY)));
 
         if (OdApplication.userInfo != null) {
             launchActivity(MainActivity.class);
@@ -114,7 +117,7 @@ public class LoginActivity extends BaseActivity {
     public void onEvent(EventLogin event) {
         hideDialogTip();
         for (TableMember member : RTableControl.members) {
-            if (member.getPhone().trim().equalsIgnoreCase(strPhone) && member.getPsw().trim().equals(strPw)) {//手机号 和密码 相等
+            if (member.getPhone().trim().equalsIgnoreCase(strPhone) && member.getPsw().trim().equals(MD5.toMD5(strPw))) {//手机号 和密码 相等
                 for (TableCompany company : RTableControl.companys) {
                     if (company.getSid() == member.getId_company() && company.getCaption().trim().equalsIgnoreCase(strCompany)) {//所属公司 相等
                         //登录成功
@@ -122,6 +125,12 @@ public class LoginActivity extends BaseActivity {
                         userInfo.member = member;
                         userInfo.company = company;
                         OdApplication.userInfo = userInfo;
+
+                        //保存登录信息
+                        Hawk.put(KEY_USER_NAME, strPhone);
+                        Hawk.put(KEY_USER_PW, strPw);
+                        Hawk.put(KEY_USER_COMPANY, strCompany);
+
                         RWorkService.addTask(new RWorkThread.TaskRunnable() {
                             @Override
                             public void run() {

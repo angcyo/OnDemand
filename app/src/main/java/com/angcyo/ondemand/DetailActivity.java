@@ -34,12 +34,12 @@ import com.amap.api.maps2d.model.PolylineOptions;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;
+import com.angcyo.ondemand.event.EventUpdateAdapter;
 import com.angcyo.ondemand.model.OddnumBean;
 import com.angcyo.ondemand.util.Util;
 import com.angcyo.ondemand.view.OddnumAdapter;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -136,8 +136,10 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
             }
         }
         if (isOk) {
+            MainActivity.oddnums.removeAll(MainActivity.oddnums);
             super.onBackPressed();
             launchActivity(MainActivity.class);
+            EventBus.getDefault().post(new EventUpdateAdapter());
         } else {
             mMaterialDialog = new MaterialDialog(this)
                     .setTitle("提醒")
@@ -146,9 +148,10 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
                         @Override
                         public void onClick(View v) {
                             mMaterialDialog.dismiss();
-                            MainActivity.oddnums = new ArrayList<>();
+                            MainActivity.oddnums.removeAll(MainActivity.oddnums);
                             DetailActivity.super.onBackPressed();
                             launchActivity(MainActivity.class);
+                            EventBus.getDefault().post(new EventUpdateAdapter());
                         }
                     })
                     .setNegativeButton("取消", new View.OnClickListener() {

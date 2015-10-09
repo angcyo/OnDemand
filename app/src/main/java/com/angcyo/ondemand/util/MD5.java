@@ -1,6 +1,7 @@
 package com.angcyo.ondemand.util;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by angcyo on 15-09-27-027.
@@ -9,6 +10,27 @@ public class MD5 {
 
     /***
      * MD5加码 生成32位md5码
+     */
+    public static String toMD5(String source) {
+        MessageDigest mDigest = null;
+        StringBuffer hexString = new StringBuffer();
+        try {
+            mDigest = MessageDigest.getInstance("MD5");
+            byte[] md5bytes = mDigest.digest();
+            for (int i = 0; i < md5bytes.length; i++) {
+                String hex = Integer.toHexString(0xff & md5bytes[i]);
+                if (hex.length() == 1)
+                    hexString.append('0');
+                hexString.append(hex);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return hexString.toString();
+    }
+
+    /***
+     * MD5加码 生成48位md5码
      */
     public static String string2MD5(String inStr) {
         MessageDigest md5 = null;
