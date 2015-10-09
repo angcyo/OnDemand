@@ -11,7 +11,7 @@ public class MD5 {
      * MD5加码 生成32位md5码
      */
     public static String toMD5(String source) {
-        MessageDigest mDigest = null;
+        MessageDigest mDigest;
         StringBuffer hexString = new StringBuffer();
         try {
             mDigest = MessageDigest.getInstance("MD5");
