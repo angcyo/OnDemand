@@ -1,5 +1,6 @@
 package com.angcyo.ondemand;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,19 +13,22 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;
 import com.angcyo.ondemand.event.EventException;
+import com.angcyo.ondemand.event.EventLoadData;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.event.EventOddnumOk;
 import com.angcyo.ondemand.event.EventUpdateAdapter;
 import com.angcyo.ondemand.model.OddnumBean;
 import com.angcyo.ondemand.model.TablePlatform;
+import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
 import com.angcyo.ondemand.view.AddItemAdapter;
@@ -42,6 +46,7 @@ import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
+import me.drakeet.materialdialog.MaterialDialog;
 
 public class MainActivity extends BaseActivity {
 
@@ -52,7 +57,7 @@ public class MainActivity extends BaseActivity {
     @Bind(R.id.rg_platform)
     RsenRadioGroup rgPlatform;
     @Bind(R.id.oddnum)
-    EditText oddnum;
+    AutoCompleteTextView oddnum;
     @Bind(R.id.ok)
     Button ok;
     @Bind(R.id.num1)
@@ -86,6 +91,9 @@ public class MainActivity extends BaseActivity {
     @Bind(R.id.text_input_layout)
     TextInputLayout text_input_layout;
 
+    List<String> des;//数据库中的所有订单//需要过滤, 只显示今天的订单
+    MaterialDialog mMaterialDialog;
+
     @Override
     protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main);
@@ -108,6 +116,31 @@ public class MainActivity extends BaseActivity {
         rgPlatform.addView(captions);
         recycle.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recycle.setAdapter(new AddItemAdapter(oddnums));
+        oddnum.setThreshold(1);//从第一个字符开始匹配
+        oddnum.setDropDownHeight(600);//下拉框的高度
+
+        sendDelayRunnable(new Runnable() {
+            @Override
+            public void run() {
+                loadData();
+            }
+        }, 100);
+    }
+
+    private void loadData() {
+        showDialogTip("初始化中...");
+        RWorkService.addTask(new RWorkThread.TaskRunnable() {
+            @Override
+            public void run() {
+                if (Util.isNetOk(MainActivity.this)) {
+                    RTableControl.getAllDeliveryservice();//获取所有订单
+                    RTableControl.getAllCustomer();//获取所有消费者
+                    EventBus.getDefault().post(new EventLoadData());
+                } else {
+                    EventBus.getDefault().post(new EventNoNet());
+                }
+            }
+        });
     }
 
     @Override
@@ -157,6 +190,10 @@ public class MainActivity extends BaseActivity {
             super.onBackPressed();
             return true;
         }
+        if (id == R.id.refresh) {
+            loadData();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -166,7 +203,6 @@ public class MainActivity extends BaseActivity {
             PopupTipWindow.showTip(this, "未添加配送单号");
             return;
         }
-
         showDialogTip("准备派送,请等待...");
         RWorkService.addTask(new RWorkThread.TaskRunnable() {
             @Override
@@ -174,7 +210,8 @@ public class MainActivity extends BaseActivity {
                 if (Util.isNetOk(MainActivity.this)) {
                     for (OddnumBean bean : oddnums) {
                         try {
-                            RTableControl.executeOddnum(bean.oddnum, bean.platformId, bean.sid_seller, bean.sid_customer, bean.memberId, bean.status);
+//                            RTableControl.executeOddnum(bean.oddnum, bean.platformId, bean.sid_seller, bean.sid_customer, bean.memberId, bean.status);//不创建订单
+                            RTableControl.updateOddnumState(bean.oddnum, 1);//更新订单状态//订单状态（0待命 1锁单 2派送中 3派送丢失 4客户拒收 9客户已收）
                         } catch (SQLException e) {
                             e.printStackTrace();
                             EventBus.getDefault().post(new EventException());
@@ -203,6 +240,11 @@ public class MainActivity extends BaseActivity {
         }
         if (rgPlatform.getCheckedRadioButtonIndex() < 0) {
             PopupTipWindow.showTip(this, "平台信息无效");
+            return;
+        }
+        if (!des.contains(num)) {
+            oddnum.setError("无效订单,请重新输入");
+            oddnum.requestFocus();
             return;
         }
 
@@ -245,8 +287,45 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(EventOddnumOk event) {
         hideDialogTip();
-        launchActivity(DetailActivity.class);
+
+        mMaterialDialog = new MaterialDialog(this)
+                .setTitle("提醒")
+                .setMessage("是否,发短信通知?")
+                .setPositiveButton("确认", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        StringBuffer phones = new StringBuffer();
+                        for (OddnumBean odd : oddnums) {
+                            phones.append(RTableControl.getPhoneWithOddnum(odd.oddnum) + ";");
+                        }
+                        String content = String.format("您好，你刚才预订的外卖由我(%s)正在火速配送中，联系方式：%s，请稍等，谢谢",
+                                OdApplication.userInfo.member.getName_real(), OdApplication.userInfo.member.getPhone());
+                        PhoneUtil.sendSMSTo(MainActivity.this, phones.toString(), content);
+                        mMaterialDialog.dismiss();
+                    }
+                })
+                .setNegativeButton("取消", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mMaterialDialog.dismiss();
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        launchActivity(DetailActivity.class);
+                    }
+                });
+        mMaterialDialog.show();
+
 //        finish();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void onEvent(EventLoadData event) {
+        hideDialogTip();
+        des = RTableControl.getDeliveryservicesToday();
+        oddnum.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, des));
     }
 
     private void insert(String text) {

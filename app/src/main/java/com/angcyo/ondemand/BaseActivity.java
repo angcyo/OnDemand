@@ -154,6 +154,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void noNet(EventNoNet event){
+        hideDialogTip();
         PopupTipWindow.showTip(this, "请检查网络连接");
     }
 }

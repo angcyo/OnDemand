@@ -2,6 +2,7 @@ package com.angcyo.ondemand.control;
 
 import com.angcyo.ondemand.components.RConstant;
 import com.angcyo.ondemand.model.TableCompany;
+import com.angcyo.ondemand.model.TableCustomer;
 import com.angcyo.ondemand.model.TableDeliveryservice;
 import com.angcyo.ondemand.model.TableMember;
 import com.angcyo.ondemand.model.TablePlatform;
@@ -24,8 +25,10 @@ public class RTableControl {
 
     public static List<TablePlatform> platforms = new ArrayList();
     public static List<TableDeliveryservice> deliveryservices = new ArrayList();
+    public static List<TableDeliveryservice> deliveryservicesToday = new ArrayList();
     public static List<TableMember> members = new ArrayList();
     public static List<TableCompany> companys = new ArrayList();
+    public static List<TableCustomer> customers = new ArrayList();
 
     private static ResultSet getResult(Connection connection, String queryString) throws SQLException {
         Statement statement = connection.createStatement();
@@ -90,6 +93,49 @@ public class RTableControl {
         return deliveryservices;
     }
 
+    /**
+     * 获取今天的所有订单
+     */
+    public static List<String> getDeliveryservicesToday() {
+        deliveryservicesToday = new ArrayList<>();
+        List<String> des = new ArrayList<>();
+        for (TableDeliveryservice de : RTableControl.deliveryservices) {
+            try {
+                if (isToady(de.getDt_locked())) {
+                    des.add(de.getSeller_order_identifier());
+                    deliveryservicesToday.add(de);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return des;
+    }
+
+    /**
+     * 根据订单号,返回消费者手机号码
+     */
+    public static String getPhoneWithOddnum(String oddnum) {
+        String phone = "123";
+        for (TableDeliveryservice de : RTableControl.deliveryservicesToday) {
+            if (de.getSeller_order_identifier().equalsIgnoreCase(oddnum)) {
+                for (TableCustomer mer : customers) {
+                    if (mer.getSid() == de.getSid_customer()) {//消费者id
+                        return mer.getPhone();
+                    }
+                }
+            }
+        }
+        return phone;
+    }
+
+    /**
+     * 判断当前日期是否是今天 2015-10-13 格式
+     */
+    public static boolean isToady(String date) {
+        return date.startsWith(Util.getDate());
+    }
+
     // ds_member 配送员信息（移动终端）
     public static List<TableMember> getAllMember() {
         members = new ArrayList();
@@ -147,6 +193,35 @@ public class RTableControl {
             e.printStackTrace();
         }
         return companys;
+    }
+
+    // customer_index	消费者基本信息
+    public static List<TableCustomer> getAllCustomer() {
+        customers = new ArrayList();
+        Connection connection;
+        TableCustomer data;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String queryString = "SELECT * from customer_index";
+            ResultSet rs = statement.executeQuery(queryString);
+            while (rs.next()) {
+                data = new TableCustomer();
+                data.setSid(rs.getInt(1));
+                data.setNickname(rs.getString(2));
+                data.setName(rs.getString(3));
+                data.setPid(rs.getInt(4));
+                data.setAddress(rs.getString(5));
+                data.setPhone(rs.getString(6));
+                customers.add(data);
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return customers;
     }
 
     public static void updateOnline(int sid) {//更新在线时间

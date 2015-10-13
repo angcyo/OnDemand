@@ -3,6 +3,7 @@ package com.angcyo.ondemand;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -31,7 +32,7 @@ import de.greenrobot.event.ThreadMode;
 /**
  * Created by angcyo on 15-09-27-027.
  */
-public class LoginActivity extends BaseActivity {
+public class LoginActivity extends BaseActivity implements View.OnLongClickListener{
     public static String KEY_USER_NAME = "user_name";
     public static String KEY_USER_PW = "user_pw";
     public static String KEY_USER_COMPANY = "user_company";
@@ -72,6 +73,14 @@ public class LoginActivity extends BaseActivity {
             launchActivity(MainActivity.class);
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void initEvent() {
+        super.initEvent();
+        phone.setOnLongClickListener(this);
+        pw.setOnLongClickListener(this);
+        company.setOnLongClickListener(this);
     }
 
     @OnClick(R.id.login)
@@ -155,5 +164,13 @@ public class LoginActivity extends BaseActivity {
             }
         }
         PopupTipWindow.showTip(this, "登录失败");
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        if (v instanceof EditText) {
+            ((EditText) v).setText("");
+        }
+        return false;
     }
 }

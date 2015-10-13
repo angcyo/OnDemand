@@ -11,6 +11,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="radioButton">@style/StylePlatformRadioButton</item>
+        <!--<item name="android:listPreferredItemHeight"></item>-->
     </style>
 
     <style name="AppTheme.NoActionBar">

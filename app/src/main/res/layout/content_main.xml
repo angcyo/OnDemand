@@ -58,7 +58,7 @@
                 android:layout_margin="10dp"
                 android:paddingTop="30dp">
 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/oddnum"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -67,6 +67,13 @@
                     android:hint="订单号"
                     android:singleLine="true" />
             </android.support.design.widget.TextInputLayout>
+
+            <!--<-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="New AutoCompleteTextView"-->
+                <!--android:id="@+id/autoCompleteTextView"-->
+                <!--android:layout_gravity="center_horizontal" />-->
 
             <Button
                 android:id="@+id/add"
