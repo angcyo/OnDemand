@@ -1,16 +1,21 @@
 package com.angcyo.ondemand.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Environment;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 
 import java.io.File;
@@ -18,9 +23,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Random;
 
@@ -63,7 +72,7 @@ public class Util {
      * 判断字符串是否为空
      */
     public static boolean isEmpty(String str) {
-        return str == null || str.trim().length() == 0;
+        return (str == null || str.trim().length() < 1);
     }
 
     /**
@@ -80,7 +89,10 @@ public class Util {
         if (netInfo == null) {
             return false;
         }
-        return netInfo.isConnected();
+        if (netInfo.isConnected()) {
+            return true;
+        }
+        return false;
     }
 
 // 可以使用Time类，更简单
@@ -186,7 +198,7 @@ public class Util {
 
     /**
      * 取得device的IP address
-     * <p/>
+     * <p>
      * 需要权限 android.permission.ACCESS_WIFI_STATE
      *
      * @param context
@@ -203,7 +215,27 @@ public class Util {
                 (ipAddress >> 8 & 0xff), (ipAddress >> 16 & 0xff),
                 (ipAddress >> 24 & 0xff));
         return ip;
+    }
 
+    /**
+     * Get IP For mobile
+     */
+    public static String getMobileIP() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+                NetworkInterface intf = (NetworkInterface) en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        String ipaddress = inetAddress.getHostAddress().toString();
+                        return ipaddress;
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            Log.e("getMobileIP", "Exception in Get IP Address: " + ex.toString());
+        }
+        return "";
     }
 
     /**
@@ -220,6 +252,40 @@ public class Util {
     public static String getDeviceName() {
         String string = android.os.Build.MODEL;
         return string;
+    }
+
+    /**
+     * INTERNAL method that returns the device model name with correct capitalization.
+     * Taken from: http://stackoverflow.com/a/12707479/1254846
+     *
+     * @return The device model name (i.e., "LGE Nexus 5")
+     */
+    public static String getDeviceModelName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        if (model.startsWith(manufacturer)) {
+            return capitalize(model);
+        } else {
+            return capitalize(manufacturer) + " " + model;
+        }
+    }
+
+    /**
+     * INTERNAL method that capitalizes the first character of a string
+     *
+     * @param s The string to capitalize
+     * @return The capitalized string
+     */
+    public static String capitalize(String s) {
+        if (s == null || s.length() == 0) {
+            return "";
+        }
+        char first = s.charAt(0);
+        if (Character.isUpperCase(first)) {
+            return s;
+        } else {
+            return Character.toUpperCase(first) + s.substring(1);
+        }
     }
 
     /**
@@ -282,9 +348,9 @@ public class Util {
      */
     public static String getAppVersionName(Context context) {
         String version = "unknown";
-        // 获取package manager的实例
+// 获取package manager的实例
         PackageManager packageManager = context.getPackageManager();
-        // getPackageName()是你当前类的包名，0代表是获取版本信息
+// getPackageName()是你当前类的包名，0代表是获取版本信息
         PackageInfo packInfo;
         try {
             packInfo = packageManager.getPackageInfo(context.getPackageName(),
@@ -293,7 +359,7 @@ public class Util {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        // Log.i("版本名称:", version);
+// Log.i("版本名称:", version);
         return version;
     }
 
@@ -304,9 +370,9 @@ public class Util {
      * @return
      */
     public static int getAppVersionCode(Context context) {
-        // 获取package manager的实例
+// 获取package manager的实例
         PackageManager packageManager = context.getPackageManager();
-        // getPackageName()是你当前类的包名，0代表是获取版本信息
+// getPackageName()是你当前类的包名，0代表是获取版本信息
         int code = 1;
         PackageInfo packInfo;
         try {
@@ -316,7 +382,7 @@ public class Util {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        // Log.i("版本代码:", version);
+// Log.i("版本代码:", version);
         return code;
     }
 
@@ -332,7 +398,10 @@ public class Util {
 
         NetworkInfo info = cm.getActiveNetworkInfo();
 
-        return info != null && info.isConnectedOrConnecting();
+        if (info != null && info.isConnectedOrConnecting()) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -471,7 +540,10 @@ public class Util {
      */
     public static boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -530,6 +602,26 @@ public class Util {
 
     public static void set(String content) {
         set(content, config);
+    }
+
+    /**
+     * 打开网页
+     *
+     * @param context the context
+     * @param url     the url
+     */
+    public static void openUrl(Context context, String url) {
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+
+        if (!url.toLowerCase().startsWith("http:") || !url.toLowerCase().startsWith("https:")) {
+            url = "http:".concat(url);
+        }
+
+        Uri webPage = Uri.parse(url);
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, webPage);
+        context.startActivity(webIntent);
     }
 
 }

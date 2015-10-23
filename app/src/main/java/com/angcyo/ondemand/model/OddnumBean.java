@@ -8,6 +8,7 @@ public class OddnumBean {
     public int platformId;//平台id
     public String oddnum;//订单号
     public int memberId;//配送员id
+    public int sid;//订单sid
 
     public int sid_seller = 0;//商户id
     public int sid_customer = 0;//消费者id

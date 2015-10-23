@@ -2,9 +2,11 @@ package com.angcyo.ondemand;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -16,6 +18,7 @@ import com.angcyo.ondemand.event.EventLogin;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.model.TableCompany;
 import com.angcyo.ondemand.model.TableMember;
+import com.angcyo.ondemand.model.TableSellerIndex;
 import com.angcyo.ondemand.model.UserInfo;
 import com.angcyo.ondemand.util.MD5;
 import com.angcyo.ondemand.util.PopupTipWindow;
@@ -32,10 +35,11 @@ import de.greenrobot.event.ThreadMode;
 /**
  * Created by angcyo on 15-09-27-027.
  */
-public class LoginActivity extends BaseActivity implements View.OnLongClickListener{
+public class LoginActivity extends BaseActivity implements View.OnLongClickListener {
     public static String KEY_USER_NAME = "user_name";
     public static String KEY_USER_PW = "user_pw";
     public static String KEY_USER_COMPANY = "user_company";
+    public static boolean useSellerLogin = false;//使用商家匹配登录, 默认使用物流公司登录
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.phone)
@@ -50,6 +54,8 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
     TextView appVer;
     String strPhone, strPw, strCompany;
     UserInfo userInfo;
+    @Bind(R.id.cbUseSeller)
+    AppCompatCheckBox cbUseSeller;
 
     @Override
     protected void initView(Bundle savedInstanceState) {
@@ -81,6 +87,13 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         phone.setOnLongClickListener(this);
         pw.setOnLongClickListener(this);
         company.setOnLongClickListener(this);
+
+        cbUseSeller.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                useSellerLogin = isChecked;
+            }
+        });
     }
 
     @OnClick(R.id.login)
@@ -94,6 +107,7 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
                         RTableControl.getAllMember();
                         RTableControl.getAllCompany();
                         RTableControl.getAllPlatform();
+                        RTableControl.getAllSellerIndexes();
                         EventBus.getDefault().post(new EventLogin());
                     } else {
                         EventBus.getDefault().post(new EventNoNet());
@@ -133,37 +147,52 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         hideDialogTip();
         for (TableMember member : RTableControl.members) {
             if (member.getPhone().trim().equalsIgnoreCase(strPhone) && member.getPsw().trim().equals(MD5.toMD5(strPw))) {//手机号 和密码 相等
-                for (TableCompany company : RTableControl.companys) {
-                    if (company.getSid() == member.getId_company() && company.getCaption().trim().equalsIgnoreCase(strCompany)) {//所属公司 相等
-                        //登录成功
-                        userInfo = new UserInfo();
-                        userInfo.member = member;
-                        userInfo.company = company;
-                        OdApplication.userInfo = userInfo;
-
-                        //保存登录信息
-                        Hawk.put(KEY_USER_NAME, strPhone);
-                        Hawk.put(KEY_USER_PW, strPw);
-                        Hawk.put(KEY_USER_COMPANY, strCompany);
-
-                        RWorkService.addTask(new RWorkThread.TaskRunnable() {
-                            @Override
-                            public void run() {
-                                if (Util.isNetOk(LoginActivity.this)) {
-                                    RTableControl.updateOnline(OdApplication.userInfo.member.getSid());
-                                } else {
-                                    EventBus.getDefault().post(new EventNoNet());
-                                }
-                            }
-                        });
-                        launchActivity(MainActivity.class);
-                        finish();
-                        return;
+                if (useSellerLogin) {
+                    for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
+                        if (sellerIndex.getSid() == member.getId_company() && sellerIndex.getCompany().trim().equalsIgnoreCase(strCompany)) {//所属 服务商家 相等
+                            //登录成功
+                            onLoginSucceed(member, null, sellerIndex);
+                            return;
+                        }
+                    }
+                } else {
+                    for (TableCompany company : RTableControl.companys) {
+                        if (company.getSid() == member.getId_company() && company.getCaption().trim().equalsIgnoreCase(strCompany)) {//所属xx 物流 相等
+                            //登录成功
+                            onLoginSucceed(member, company, null);
+                            return;
+                        }
                     }
                 }
             }
         }
         PopupTipWindow.showTip(this, "登录失败");
+    }
+
+    private void onLoginSucceed(TableMember member, TableCompany tableCompany, TableSellerIndex tableSellerIndex) {
+        userInfo = new UserInfo();
+        userInfo.member = member;
+        userInfo.company = tableCompany;
+        userInfo.sellerIndex = tableSellerIndex;
+        OdApplication.userInfo = userInfo;
+
+        //保存登录信息
+        Hawk.put(KEY_USER_NAME, strPhone);
+        Hawk.put(KEY_USER_PW, strPw);
+        Hawk.put(KEY_USER_COMPANY, strCompany);
+
+        RWorkService.addTask(new RWorkThread.TaskRunnable() {
+            @Override
+            public void run() {
+                if (Util.isNetOk(LoginActivity.this)) {
+                    RTableControl.updateOnline(OdApplication.userInfo.member.getSid());
+                } else {
+                    EventBus.getDefault().post(new EventNoNet());
+                }
+            }
+        });
+        launchActivity(MainActivity.class);
+        finish();
     }
 
     @Override
@@ -172,5 +201,12 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
             ((EditText) v).setText("");
         }
         return false;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
     }
 }

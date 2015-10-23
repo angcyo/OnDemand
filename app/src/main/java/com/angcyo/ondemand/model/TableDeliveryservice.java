@@ -13,8 +13,17 @@ public class TableDeliveryservice extends BaseTable {
     String dt_locked;//		datetime	8	23	3	√		锁单时间（配送员终端接受送任务）
     String dt_start;//	datetime	8	23	3	√		配送开始时间（配送员取到派送物件）
     String dt_end;//	datetime	8	23	3	√		配送完成时间（配送员派送到达目的地完成文件交接）
+    String dt_create;//	datetime	8	23	3	√		订单创建时间
     int status;//			tinyint	1	3	0		((0))	订单状态（0待命 1锁单 2派送中 3派送丢失 4客户拒收 9客户已收）
     String comment;//			varchar	100	100	0	√		备注
+
+    public String getDt_create() {
+        return dt_create;
+    }
+
+    public void setDt_create(String dt_create) {
+        this.dt_create = dt_create;
+    }
 
     public String getSeller_order_identifier() {
         return seller_order_identifier;

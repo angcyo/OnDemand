@@ -6,6 +6,7 @@ import com.angcyo.ondemand.model.TableCustomer;
 import com.angcyo.ondemand.model.TableDeliveryservice;
 import com.angcyo.ondemand.model.TableMember;
 import com.angcyo.ondemand.model.TablePlatform;
+import com.angcyo.ondemand.model.TableSellerIndex;
 import com.angcyo.ondemand.util.Util;
 
 import java.sql.CallableStatement;
@@ -23,12 +24,13 @@ import java.util.List;
  */
 public class RTableControl {
 
-    public static List<TablePlatform> platforms = new ArrayList();
-    public static List<TableDeliveryservice> deliveryservices = new ArrayList();
-    public static List<TableDeliveryservice> deliveryservicesToday = new ArrayList();
-    public static List<TableMember> members = new ArrayList();
-    public static List<TableCompany> companys = new ArrayList();
-    public static List<TableCustomer> customers = new ArrayList();
+    public static List<TablePlatform> platforms = new ArrayList();//平台 饿了么/美团/等
+    public static List<TableDeliveryservice> deliveryservices = new ArrayList();//所有订单
+    public static List<TableDeliveryservice> deliveryservicesToday = new ArrayList();//今天的订单
+    public static List<TableMember> members = new ArrayList();//配送员
+    public static List<TableCompany> companys = new ArrayList();//配送公司,xx物流
+    public static List<TableCustomer> customers = new ArrayList();//消费者信息
+    public static List<TableSellerIndex> sellerIndexes = new ArrayList();//服务商家
 
     private static ResultSet getResult(Connection connection, String queryString) throws SQLException {
         Statement statement = connection.createStatement();
@@ -59,6 +61,37 @@ public class RTableControl {
         return platforms;
     }
 
+    /**
+     * 根据平台名称, 获取平台sid
+     */
+    public static int getSidWithPlatform(String platform) {
+        if (Util.isEmpty(platform)) {
+            return -1;
+        }
+        for (TablePlatform plat : platforms) {
+            if (plat.getCaption().equalsIgnoreCase(platform)) {
+                return plat.getSid();
+            }
+        }
+        return -1;
+    }
+
+
+    /**
+     * 根据订单号和平台id, 获取订单id
+     */
+    public static int getSidWithPOddnum(String oddnum, int platformSid) {
+        if (Util.isEmpty(oddnum) || platformSid < 1) {
+            return -1;
+        }
+        for (TableDeliveryservice deliveryservice : deliveryservicesToday) {
+            if (deliveryservice.getSeller_order_identifier().equalsIgnoreCase(oddnum) && deliveryservice.getSid_ec() == platformSid) {
+                return deliveryservice.getSid();
+            }
+        }
+        return -1;
+    }
+
     // order_deliveryservice 商户订单配送情况
     public static List<TableDeliveryservice> getAllDeliveryservice() {
         deliveryservices = new ArrayList();
@@ -72,7 +105,7 @@ public class RTableControl {
             while (rs.next()) {
                 data = new TableDeliveryservice();
                 data.setSid(rs.getInt(1));
-                data.setSeller_order_identifier(rs.getString(2));
+                data.setSeller_order_identifier(rs.getString(2).trim());
                 data.setSid_ec(rs.getInt(3));
                 data.setSid_seller(rs.getInt(4));
                 data.setSid_customer(rs.getInt(5));
@@ -82,6 +115,7 @@ public class RTableControl {
                 data.setDt_end(rs.getString(9));
                 data.setStatus(rs.getInt(10));
                 data.setComment(rs.getString(11));
+                data.setDt_create(rs.getString(12));
                 deliveryservices.add(data);
             }
             connection.close();
@@ -101,7 +135,7 @@ public class RTableControl {
         List<String> des = new ArrayList<>();
         for (TableDeliveryservice de : RTableControl.deliveryservices) {
             try {
-                if (isToady(de.getDt_locked())) {
+                if (isToady(de.getDt_create())) {
                     des.add(de.getSeller_order_identifier());
                     deliveryservicesToday.add(de);
                 }
@@ -116,7 +150,7 @@ public class RTableControl {
      * 根据订单号,返回消费者手机号码
      */
     public static String getPhoneWithOddnum(String oddnum) {
-        String phone = "123";
+        String phone = "";
         for (TableDeliveryservice de : RTableControl.deliveryservicesToday) {
             if (de.getSeller_order_identifier().equalsIgnoreCase(oddnum)) {
                 for (TableCustomer mer : customers) {
@@ -195,6 +229,46 @@ public class RTableControl {
         return companys;
     }
 
+    // seller_index 服务商家
+    public static List<TableSellerIndex> getAllSellerIndexes() {
+        sellerIndexes = new ArrayList();
+        Connection connection;
+        TableSellerIndex data;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String queryString = "SELECT * from seller_index";
+            ResultSet rs = statement.executeQuery(queryString);
+            while (rs.next()) {
+                data = new TableSellerIndex();
+                data.setSid(rs.getInt(1));
+                data.setCompany(rs.getString(2));
+                data.setAddress(rs.getString(3));
+                data.setContacts(rs.getString(4));
+                data.setPhone(rs.getString(5));
+                sellerIndexes.add(data);
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return sellerIndexes;
+    }
+
+    // seller_index 服务商家
+    public static String getCaptionWithSellerSid(int sid) {
+        String caption = "";
+        for (TableSellerIndex seller : sellerIndexes) {
+            if (seller.getSid() == sid) {
+                caption = seller.getCompany();
+                return caption;
+            }
+        }
+        return caption;
+    }
+
     // customer_index	消费者基本信息
     public static List<TableCustomer> getAllCustomer() {
         customers = new ArrayList();
@@ -207,12 +281,16 @@ public class RTableControl {
             ResultSet rs = statement.executeQuery(queryString);
             while (rs.next()) {
                 data = new TableCustomer();
-                data.setSid(rs.getInt(1));
-                data.setNickname(rs.getString(2));
-                data.setName(rs.getString(3));
-                data.setPid(rs.getInt(4));
-                data.setAddress(rs.getString(5));
-                data.setPhone(rs.getString(6));
+                try {
+                    data.setSid(rs.getInt(1));
+                    data.setNickname(rs.getString(2));
+                    data.setName(rs.getString(3));
+                    data.setPid(rs.getInt(4));
+                    data.setAddress(rs.getString(5));
+                    data.setPhone(rs.getString(6));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
                 customers.add(data);
             }
             connection.close();
@@ -266,11 +344,15 @@ public class RTableControl {
         Statement statement = connection.createStatement();
         String queryString = String.format("INSERT INTO order_deliveryservice VALUES ('%s', %d, %d, %d, %d, '%s', '%s', '%s', %d, '%s')",
                 seller_order_identifier, sid_ec, sid_seller, sid_customer, sid_member,
-                Util.getDateAndTime(), Util.getDateAndTime(), Util.getDateAndTime(), status, Util.getDeviceName() + " " + RConstant.VERSION);
+                Util.getDateAndTime(), Util.getDateAndTime(), Util.getDateAndTime(), status, Util.getDeviceModelName() + " " + RConstant.VERSION);
         statement.executeUpdate(queryString);
         connection.close();
     }
 
+    /**
+     * 更新订单状态
+     * 订单状态（0待命 1锁单 2派送中 3派送丢失 4客户拒收 9客户已收）
+     */
     public static void updateOddnumState(String seller_order_identifier, int status) throws SQLException, ClassNotFoundException {
         //UPDATE order_deliveryservice set status = 9  WHERE seller_order_identifier = '222'
         Connection connection;
@@ -280,6 +362,39 @@ public class RTableControl {
                 status, Util.getDateAndTime(), seller_order_identifier);
         statement.executeUpdate(queryString);
         connection.close();
+    }
+
+    /**
+     * 更新订单数据
+     * sid_ec			int	4	10	0			电商平台ID
+     * sid_seller			int	4	10	0		((0))	所属商户ID
+     * sid_customer			int	4	10	0		((0))	消费者ID
+     * sid_member			int	4	10	0		((0))	配送员ID
+     * dt_start			datetime	8	23	3	√		配送开始时间（配送员取到派送物件）
+     *
+     * @param status the status
+     * @throws SQLException           the sql exception
+     * @throws ClassNotFoundException the class not found exception
+     */
+    public static void updateOddnum(int sid_member, int status, int sid) throws SQLException, ClassNotFoundException {
+        //UPDATE order_deliveryservice set status = 9  WHERE seller_order_identifier = '222'
+        Connection connection;
+        connection = getDb();
+        Statement statement = connection.createStatement();
+//        String queryString = String.format("UPDATE order_deliveryservice set status = %d , dt_end = '%s' WHERE seller_order_identifier = '%s'",
+//                status, Util.getDateAndTime(), seller_order_identifier);
+
+
+//        Connection connection;
+//        connection = getDb();
+//        Statement statement = connection.createStatement();
+        String queryString = String.format("UPDATE order_deliveryservice set sid_member = %d,dt_locked = '%s', dt_start = '%s', status = %d, comment = '%s' WHERE sid = %d",
+                sid_member, Util.getDateAndTime(), Util.getDateAndTime(), status, Util.getDeviceModelName() + " " + RConstant.VERSION, sid);
+        statement.executeUpdate(queryString);
+        connection.close();
+
+//        statement.executeUpdate(queryString);
+//        connection.close();
     }
 
     public static int callUpdate(int sid_member, double lat, double log) throws SQLException, ClassNotFoundException {
