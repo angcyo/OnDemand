@@ -17,6 +17,7 @@ import com.angcyo.ondemand.control.RTableControl;
 import com.angcyo.ondemand.event.EventException;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.model.OddnumBean;
+import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.Util;
 
 import java.sql.SQLException;
@@ -55,8 +56,26 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        holder.platform.setText(datas.get(position).caption);
-        holder.oddnum.setText(datas.get(position).oddnum);
+        final OddnumBean oddnumBean = datas.get(position);
+
+        holder.platform.setText(oddnumBean.caption);
+        holder.oddnum.setText(oddnumBean.oddnum);
+
+        //拨打客户电话
+        if (Util.isEmpty(oddnumBean.customerPhone)) {
+            holder.customerPhone.setText("未识别号码");
+            holder.customerPhone.setClickable(false);
+        } else {
+            holder.customerPhone.setText(oddnumBean.customerPhone);
+            holder.customerPhone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PhoneUtil.call(context, oddnumBean.customerPhone);
+                }
+            });
+        }
+
+        //撤销订单
         holder.cancel.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -75,6 +94,7 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
             }
         });
 
+        //送达订单
         holder.ok.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
@@ -149,6 +169,8 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
         CheckBox ok;
         @Bind(R.id.layout)
         LinearLayout layout;
+        @Bind(R.id.customerPhone)
+        TextView customerPhone;
 
         public ViewHolder(View itemView) {
             super(itemView);

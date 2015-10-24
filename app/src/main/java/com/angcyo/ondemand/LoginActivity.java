@@ -75,6 +75,7 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         pw.setText(((String) Hawk.get(KEY_USER_PW)));
         company.setText(((String) Hawk.get(KEY_USER_COMPANY)));
 
+        cbUseSeller.setVisibility(View.GONE);
         if (OdApplication.userInfo != null) {
             launchActivity(MainActivity.class);
             super.onBackPressed();
@@ -147,23 +148,34 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         hideDialogTip();
         for (TableMember member : RTableControl.members) {
             if (member.getPhone().trim().equalsIgnoreCase(strPhone) && member.getPsw().trim().equals(MD5.toMD5(strPw))) {//手机号 和密码 相等
-                if (useSellerLogin) {
-                    for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
-                        if (sellerIndex.getSid() == member.getId_company() && sellerIndex.getCompany().trim().equalsIgnoreCase(strCompany)) {//所属 服务商家 相等
-                            //登录成功
-                            onLoginSucceed(member, null, sellerIndex);
-                            return;
-                        }
-                    }
-                } else {
-                    for (TableCompany company : RTableControl.companys) {
-                        if (company.getSid() == member.getId_company() && company.getCaption().trim().equalsIgnoreCase(strCompany)) {//所属xx 物流 相等
-                            //登录成功
-                            onLoginSucceed(member, company, null);
-                            return;
-                        }
+                for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
+                    if (sellerIndex.getCompany().trim().equalsIgnoreCase(strCompany)) {//含有登录的 服务商家
+                        //登录成功
+                        onLoginSucceed(member, null, sellerIndex);
+                        return;
                     }
                 }
+                company.setError("不存在此服务商家");
+                company.requestFocus();
+                return;
+
+//                if (useSellerLogin) {
+//                    for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
+//                        if (sellerIndex.getSid() == member.getId_company() && sellerIndex.getCompany().trim().equalsIgnoreCase(strCompany)) {//所属 服务商家 相等
+//                            //登录成功
+//                            onLoginSucceed(member, null, sellerIndex);
+//                            return;
+//                        }
+//                    }
+//                } else {
+//                    for (TableCompany company : RTableControl.companys) {
+//                        if (company.getSid() == member.getId_company() && company.getCaption().trim().equalsIgnoreCase(strCompany)) {//所属xx 物流 相等
+//                            //登录成功
+//                            onLoginSucceed(member, company, null);
+//                            return;
+//                        }
+//                    }
+//                }
             }
         }
         PopupTipWindow.showTip(this, "登录失败");

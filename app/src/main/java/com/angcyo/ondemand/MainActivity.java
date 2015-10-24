@@ -2,7 +2,9 @@ package com.angcyo.ondemand;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +32,7 @@ import com.angcyo.ondemand.event.EventUpdateAdapter;
 import com.angcyo.ondemand.model.OddnumBean;
 import com.angcyo.ondemand.model.TableDeliveryservice;
 import com.angcyo.ondemand.model.TablePlatform;
+import com.angcyo.ondemand.model.TableSellerIndex;
 import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
@@ -95,6 +98,8 @@ public class MainActivity extends BaseActivity {
 
     List<String> des;//数据库中的所有订单//需要过滤, 只显示今天的订单
     MaterialDialog mMaterialDialog;
+    MaterialDialog mChangeSellerDialog;
+    AppCompatEditText mChangeSellerView;
     private boolean isSendSms = false;
 
     @Override
@@ -131,8 +136,8 @@ public class MainActivity extends BaseActivity {
         }, 100);
     }
 
-    private void loadData(final boolean isRefresh) {
-        showDialogTip("初始化中...");
+    private void loadData(String tip, final boolean isRefresh) {
+        showDialogTip(tip);
         RWorkService.addTask(new RWorkThread.TaskRunnable() {
             @Override
             public void run() {
@@ -151,6 +156,10 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+    private void loadData(final boolean isRefresh) {
+        loadData("初始化中...", isRefresh);
     }
 
     @Override
@@ -193,6 +202,33 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        if (id == R.id.change_seller) {
+            mChangeSellerDialog = new MaterialDialog(this);
+            mChangeSellerView = new AppCompatEditText(this);
+            mChangeSellerView.setHint("当前:" + OdApplication.userInfo.sellerIndex.getCompany());
+            mChangeSellerDialog.setContentView(mChangeSellerView);
+            mChangeSellerDialog.setTitle("更改服务商家");
+            mChangeSellerDialog.setPositiveButton("确定", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String seller = mChangeSellerView.getText().toString();
+                    if (Util.isEmpty(seller)) {
+                        mChangeSellerView.setError("请输入服务商家");
+                        mChangeSellerView.requestFocus();
+                        return;
+                    }
+                    changeSeller();
+                }
+            });
+            mChangeSellerDialog.setNegativeButton("取消", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mChangeSellerDialog.dismiss();
+                }
+            });
+            mChangeSellerDialog.show();
+            return true;
+        }
         if (id == R.id.action_settings) {
             Hawk.put(LoginActivity.KEY_USER_PW, "");
             OdApplication.userInfo = null;
@@ -205,6 +241,10 @@ public class MainActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void changeSeller() {
+        loadData("切换服务商家中...", true);
     }
 
     @OnClick(R.id.ok)
@@ -265,6 +305,7 @@ public class MainActivity extends BaseActivity {
         bean.oddnum = num;
         bean.sid = RTableControl.getSidWithPOddnum(bean.oddnum, bean.platformId);
         bean.memberId = OdApplication.userInfo.member.getSid();
+        bean.customerPhone = RTableControl.getPhoneWithOddnum(bean.oddnum);
 
         //在今天的订单里面,判断输入的订单号和对应的选择的平台是否相同
         for (TableDeliveryservice deliveryservice : RTableControl.deliveryservicesToday) {
@@ -275,6 +316,7 @@ public class MainActivity extends BaseActivity {
                     PopupTipWindow.showTip(this, "请勿重复添加");
                     return;
                 } else {
+                    bean.sid_customer = deliveryservice.getSid_customer();
                     bean.sid_seller = deliveryservice.getSid_seller();
                     ((AddItemAdapter) recycle.getAdapter()).addItem(bean);
                     recycle.smoothScrollToPosition(recycle.getAdapter().getItemCount());
@@ -300,6 +342,7 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(EventUpdateAdapter event) {
         recycle.getAdapter().notifyDataSetChanged();
+        oddnum.setText("");
     }
 
     @Subscribe(threadMode = ThreadMode.MainThread)
@@ -371,6 +414,25 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(EventLoadData event) {
         hideDialogTip();
+
+        if (mChangeSellerDialog != null) {
+            String strCompany = mChangeSellerView.getText().toString();
+            for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
+                if (sellerIndex.getCompany().trim().equalsIgnoreCase(strCompany)) {
+                    mChangeSellerDialog.dismiss();
+                    mChangeSellerDialog = null;
+                    OdApplication.userInfo.sellerIndex = sellerIndex;
+                    Snackbar.make(recycle, "服务商家已更改至:" + strCompany, Snackbar.LENGTH_SHORT).show();
+                    break;
+                }
+            }
+            if (mChangeSellerDialog != null) {
+                mChangeSellerView.setError("不存在此服务商家");
+                mChangeSellerView.requestFocus();
+                return;
+            }
+        }
+
         des = RTableControl.getDeliveryservicesToday();
         oddnum.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, des));
         EventBus.getDefault().post(new EventUpdateAdapter());

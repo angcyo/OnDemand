@@ -1,5 +1,6 @@
 package com.angcyo.ondemand.control;
 
+import com.angcyo.ondemand.OdApplication;
 import com.angcyo.ondemand.components.RConstant;
 import com.angcyo.ondemand.model.TableCompany;
 import com.angcyo.ondemand.model.TableCustomer;
@@ -135,7 +136,8 @@ public class RTableControl {
         List<String> des = new ArrayList<>();
         for (TableDeliveryservice de : RTableControl.deliveryservices) {
             try {
-                if (isToady(de.getDt_create())) {
+                if (isToady(de.getDt_create()) && de.getStatus() != 9
+                        && de.getSid_seller() == OdApplication.userInfo.sellerIndex.getSid()) {//今天的订单,并且订单状态是未完成,并且订单是当前登录的服务商家
                     des.add(de.getSeller_order_identifier());
                     deliveryservicesToday.add(de);
                 }

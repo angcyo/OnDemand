@@ -47,6 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:gravity="center"
+                android:inputType="number"
                 android:hint="手机号码"
                 android:maxLength="11"
                 android:singleLine="true" />
