@@ -9,7 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
-        versionName "1.0.7.3"
+        versionName "1.0.7.5"
     }
     buildTypes {
         release {
@@ -17,14 +17,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File(output.outputFile.parent,
+                    "OnDemand-${variant.buildType.name}-${variant.versionName}-${getTime()}.apk")
+        }
+    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:design:23.0.1'
-    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.squareup.okio:okio:1.6.0'
     compile 'com.orhanobut:logger:1.11'
     compile 'com.orhanobut:hawk:1.18'
@@ -32,4 +38,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.readystatesoftware.systembartint:systembartint:1.0.4'
     compile 'me.drakeet.materialdialog:library:1.2.3'
+}
+
+def getTime() {
+    return new Date().format("yyyy-MM-dd")
 }

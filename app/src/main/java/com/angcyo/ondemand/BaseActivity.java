@@ -125,6 +125,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         handler.postDelayed(runnable, delayMillis);
     }
 
+
+    public void removeCallbacks(Runnable runnable) {
+        handler.removeCallbacks(runnable);
+    }
+
     protected OdApplication getApp() {
         return ((OdApplication) getApplication());
     }
@@ -134,6 +139,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         ButterKnife.unbind(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void noNet(EventNoNet event) {
+        hideDialogTip();
+        PopupTipWindow.showTip(this, "请检查网络连接");
     }
 
     static class StaticHandler extends Handler {
@@ -150,11 +161,5 @@ public abstract class BaseActivity extends AppCompatActivity {
                 context.handMessage(msg, msg.what, msg.obj);
             }
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MainThread)
-    public void noNet(EventNoNet event){
-        hideDialogTip();
-        PopupTipWindow.showTip(this, "请检查网络连接");
     }
 }

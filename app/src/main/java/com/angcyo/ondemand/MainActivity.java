@@ -21,6 +21,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.angcyo.ondemand.components.RConstant;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;
@@ -102,6 +103,28 @@ public class MainActivity extends BaseActivity {
     AppCompatEditText mChangeSellerView;
     private boolean isSendSms = false;
 
+    private Runnable autoRefreshRunnable;//自动刷新
+
+    @Override
+    protected void initBefore() {
+        super.initBefore();
+        autoRefreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                RWorkService.addTask(new RWorkThread.TaskRunnable() {
+                    @Override
+                    public void run() {
+                        if (Util.isNetOk(MainActivity.this)) {
+                            RTableControl.getAllDeliveryservice();//获取所有订单
+                            RTableControl.getAllCustomer();//获取所有消费者
+                            EventBus.getDefault().post(new EventLoadData(false, true));
+                        }
+                    }
+                });
+            }
+        };
+    }
+
     @Override
     protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main);
@@ -124,7 +147,7 @@ public class MainActivity extends BaseActivity {
         rgPlatform.addView(captions);
         recycle.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recycle.setAdapter(new AddItemAdapter(oddnums));
-        oddnum.setThreshold(1);//从第一个字符开始匹配
+        oddnum.setThreshold(8);//从第一个字符开始匹配
         oddnum.setDropDownHeight(600);//下拉框的高度
 //        rgPlatform.setVisibility(View.GONE);
 
@@ -409,10 +432,24 @@ public class MainActivity extends BaseActivity {
                 mMaterialDialog.dismiss();
             }
         }
+
+        sendDelayRunnable(autoRefreshRunnable, RConstant.AUTO_REFRESH_TIME);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        removeCallbacks(autoRefreshRunnable);
     }
 
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(EventLoadData event) {
+        if (event.isAutoRefresh) {
+            des = RTableControl.getDeliveryservicesToday();
+            oddnum.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, des));
+            return;
+        }
+
         hideDialogTip();
 
         if (mChangeSellerDialog != null) {
