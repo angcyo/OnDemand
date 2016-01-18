@@ -1,7 +1,7 @@
 <resources>
 
     <declare-styleable name="RsenRadioGroup">
-        <attr name="radioButton" format="reference" />
+        <attr name="radioButton" format="reference"/>
     </declare-styleable>
 
     <!-- Base application theme. -->
@@ -14,14 +14,19 @@
         <!--<item name="android:listPreferredItemHeight"></item>-->
     </style>
 
+    <style name="WindowAnim">
+        <item name="android:windowEnterAnimation">@anim/alpha_0to1</item>
+        <!--<item name="android:windowExitAnimation">@anim/alpha_1to0</item>-->
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="PopupTipWindowAnim">
         <item name="android:windowEnterAnimation">@anim/tran_rtol</item>

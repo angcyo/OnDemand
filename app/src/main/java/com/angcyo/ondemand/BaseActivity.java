@@ -33,6 +33,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         initView(savedInstanceState);
         initAfter();
         initEvent();
+
+        initWindowAnim();
+    }
+
+    //设置窗口动画
+    private void initWindowAnim() {
+        getWindow().setWindowAnimations(R.style.WindowAnim);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);//状态栏
     }
 
     //初始化
@@ -62,7 +70,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     protected abstract void initAfter();
 
-    protected void launchActivity(Class c) {
+    public void launchActivity(Class c) {
         Intent intent = new Intent(this, c);
         startActivity(intent);
     }

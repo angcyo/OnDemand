@@ -191,6 +191,7 @@ public class RTableControl {
                 data.setId_company(rs.getInt(5));
                 data.setOnline(rs.getString(6));
                 data.setPsw(rs.getString(7));
+                data.setId_tradingarea(rs.getInt(8));//v2.0 新增
                 members.add(data);
             }
             connection.close();
@@ -430,4 +431,25 @@ public class RTableControl {
         return conn;
     }
 
+
+    /**
+     * 2016-1-18 v2.0 修改
+     */
+
+    /**
+     * 添加配送员
+     *
+     * @param member the member
+     */
+    public static void addMember(TableMember member) throws SQLException, ClassNotFoundException {
+        Connection connection;
+        TableMember data;
+        connection = getDb();
+        Statement statement = connection.createStatement();
+        //INSERT INTO ds_member VALUES ('nickname','name','phone',-1,'2015-01-13 11:11','psw',1)
+        String queryString = String.format("INSERT INTO ds_member VALUES ('%s','%s','%s',%d,'%s','%s',%d)",
+                member.getName_login(), member.getName_real(), member.getPhone(), member.getId_company(), Util.getDateAndTime(), member.getPsw(), member.getId_tradingarea());
+        statement.executeUpdate(queryString);
+        connection.close();
+    }
 }

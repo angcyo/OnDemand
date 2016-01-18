@@ -1,10 +1,13 @@
 package com.angcyo.ondemand;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -23,7 +26,11 @@ import com.angcyo.ondemand.model.UserInfo;
 import com.angcyo.ondemand.util.MD5;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
+import com.angcyo.ondemand.view.BaseFragment;
+import com.angcyo.ondemand.view.RegisterFragment;
 import com.orhanobut.hawk.Hawk;
+
+import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -57,6 +64,20 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
     @Bind(R.id.cbUseSeller)
     AppCompatCheckBox cbUseSeller;
 
+    /**
+     * 判断是否是手机号码
+     */
+    public static boolean isPhone(CharSequence input) {
+        Pattern pattern = Pattern.compile("^[1][358][0-9]{9}$");
+        return pattern.matcher(input).matches();
+    }
+
+    public static void hideSoftKeyboard(Context context, EditText editText) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
     @Override
     protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_login);
@@ -76,8 +97,15 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         company.setText(((String) Hawk.get(KEY_USER_COMPANY)));
 
         cbUseSeller.setVisibility(View.GONE);
+        company.setVisibility(View.GONE);
+//        if (OdApplication.userInfo != null) {
+//            launchActivity(MainActivity.class);
+//            super.onBackPressed();
+//        }
+
+        //v2 版本修改
         if (OdApplication.userInfo != null) {
-            launchActivity(MainActivity.class);
+            launchActivity(Main2Activity.class);
             super.onBackPressed();
         }
     }
@@ -120,12 +148,31 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         }
     }
 
+    @OnClick(R.id.register)
+    public void register() {
+        View currentFocus = getCurrentFocus();
+        if (currentFocus != null) {
+            currentFocus.clearFocus();
+            hideSoftKeyboard(this, (EditText) currentFocus);
+        }
+
+        addFragment(RegisterFragment.newInstance());
+    }
+
+    public void addFragment(BaseFragment fragment) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.alpha_0to1, R.anim.alpha_1to0);
+        fragmentTransaction.add(R.id.container, fragment, fragment.getClass().getSimpleName());
+        fragmentTransaction.addToBackStack(fragment.getClass().getSimpleName());
+        fragmentTransaction.commit();
+    }
+
     private boolean verifyEdit() {
         strPhone = phone.getText().toString();
         strPw = pw.getText().toString();
         strCompany = company.getText().toString();
 
-        if (Util.isEmpty(strPhone) || strPhone.length() != 11) {
+        if (Util.isEmpty(strPhone) || strPhone.length() != 11 || !isPhone(strPhone)) {
             phone.setError("请输入有效手机号码");
             phone.requestFocus();
             return false;
@@ -135,11 +182,11 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
             pw.requestFocus();
             return false;
         }
-        if (Util.isEmpty(strCompany)) {
-            company.setError("请输入服务商家");
-            company.requestFocus();
-            return false;
-        }
+//        if (Util.isEmpty(strCompany)) {
+//            company.setError("请输入服务商家");
+//            company.requestFocus();
+//            return false;
+//        }
         return true;
     }
 
@@ -148,16 +195,16 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         hideDialogTip();
         for (TableMember member : RTableControl.members) {
             if (member.getPhone().trim().equalsIgnoreCase(strPhone) && member.getPsw().trim().equals(MD5.toMD5(strPw))) {//手机号 和密码 相等
-                for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
-                    if (sellerIndex.getCompany().trim().equalsIgnoreCase(strCompany)) {//含有登录的 服务商家
-                        //登录成功
-                        onLoginSucceed(member, null, sellerIndex);
-                        return;
-                    }
-                }
-                company.setError("不存在此服务商家");
-                company.requestFocus();
-                return;
+//                for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
+//                    if (sellerIndex.getCompany().trim().equalsIgnoreCase(strCompany)) {//含有登录的 服务商家
+                //登录成功
+                onLoginSucceed(member, null, null);
+//                        return;
+//                    }
+//                }
+//                company.setError("不存在此服务商家");
+//                company.requestFocus();
+//                return;
 
 //                if (useSellerLogin) {
 //                    for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
@@ -203,7 +250,9 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
                 }
             }
         });
-        launchActivity(MainActivity.class);
+//        launchActivity(MainActivity.class);
+        // v2 版本修改
+        launchActivity(Main2Activity.class);
         finish();
     }
 
