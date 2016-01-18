@@ -72,7 +72,8 @@ public class RegisterFragment extends BaseFragment {
 
     @Override
     protected void initView(View rootView) {
-
+    //
+        //
     }
 
     @OnClick(R.id.register_member)
