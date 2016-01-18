@@ -1,5 +1,6 @@
 package com.angcyo.ondemand.base;
 
+import android.content.Context;
 import android.support.annotation.IdRes;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -16,14 +17,19 @@ import java.util.List;
 public abstract class RBaseAdapter<T> extends RecyclerView.Adapter<RBaseAdapter.RBaseViewHolder> {
 
     List<T> mAllDatas;
+    Context mContext;
 
 
-    public RBaseAdapter() {
+    public RBaseAdapter(Context context) {
         mAllDatas = new ArrayList<>();
+        this.mContext = context;
     }
 
-    public RBaseAdapter(List<T> datas) {
+    public RBaseAdapter(Context context,List<T> datas) {
         this.mAllDatas = datas;
+        this.mContext = context;
+
+//        new View(context).setSelected();
     }
 
     @Override
