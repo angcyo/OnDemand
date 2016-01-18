@@ -13,10 +13,8 @@ import com.angcyo.ondemand.Main2Activity;
 import com.angcyo.ondemand.R;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
-import com.angcyo.ondemand.control.RTableControl;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.event.EventRegister;
-import com.angcyo.ondemand.model.TableMember;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
 
@@ -86,7 +84,7 @@ public class RegisterFragment extends BaseFragment {
                     if (Util.isNetOk(mBaseActivity)) {
                         EventRegister eventRegister = new EventRegister();
                         try {
-                            RTableControl.addMember(new TableMember());
+//                            RTableControl.addMember(new TableMember());//
                             EventBus.getDefault().post(eventRegister);
                         } catch (Exception e) {
                             eventRegister.isSuccess = false;
