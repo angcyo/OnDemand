@@ -52,6 +52,12 @@ public abstract class RBaseAdapter<T> extends RecyclerView.Adapter<RBaseAdapter.
         notifyItemInserted(mAllDatas.size() - 1);
     }
 
+    /**重置数据*/
+    public void resetData(List<T> datas) {
+        this.mAllDatas = datas;
+        notifyDataSetChanged();
+    }
+
     /**
      * 通用ViewHolder
      */
