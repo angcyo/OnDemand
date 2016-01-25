@@ -441,15 +441,81 @@ public class RTableControl {
      *
      * @param member the member
      */
-    public static void addMember(TableMember member) throws SQLException, ClassNotFoundException {
+    public static int addMember(TableMember member) throws SQLException, ClassNotFoundException {
         Connection connection;
         TableMember data;
         connection = getDb();
         Statement statement = connection.createStatement();
         //INSERT INTO ds_member VALUES ('nickname','name','phone',-1,'2015-01-13 11:11','psw',1)
         String queryString = String.format("INSERT INTO ds_member VALUES ('%s','%s','%s',%d,'%s','%s',%d)",
-                member.getName_login(), member.getName_real(), member.getPhone(), member.getId_company(), Util.getDateAndTime(), member.getPsw(), member.getId_tradingarea());
-        statement.executeUpdate(queryString);
+                member.getName_login(), member.getName_real(), member.getPhone(),
+                member.getId_company(), Util.getDateAndTime(), member.getPsw(), member.getId_tradingarea());
+        int row = statement.executeUpdate(queryString);//返回受影响的行数
         connection.close();
+        return row;
+    }
+
+
+    /**
+     * 判断用户是否存在
+     *
+     * @param phone 用户手机号码
+     * @return the boolean
+     */
+    public static boolean isMemberExist(String phone) {
+        boolean result = false;
+        Connection connection;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String queryString = String.format("SELECT * FROM ds_member WHERE phone = '%s'",
+                    phone);
+            ResultSet rs = statement.executeQuery(queryString);
+            int row = rs.getRow();
+            if (row > 0) {
+                result = true;
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    /**
+     * 返回登录成功后的用户信息
+     */
+    public static TableMember getLoginMenmber(String phone, String md5Pwd) {
+        TableMember member = null;
+        Connection connection;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String queryString = String.format("SELECT * FROM ds_member WHERE phone = '%s' AND psw = '%s'",
+                    phone, md5Pwd);
+            ResultSet rs = statement.executeQuery(queryString);
+            while (rs.next()) {
+                member = new TableMember();
+                member.setSid(rs.getInt(1));
+                member.setName_login(rs.getString(2));
+                member.setName_real(rs.getString(3));
+                member.setPhone(rs.getString(4));
+                member.setId_company(rs.getInt(5));
+                member.setOnline(rs.getString(6));
+                member.setPsw(rs.getString(7));
+                member.setId_tradingarea(rs.getInt(8));//v2.0 新增
+                break;//返回第一个
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return member;
     }
 }

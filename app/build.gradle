@@ -8,8 +8,8 @@ android {
         applicationId "com.angcyo.ondemand"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0.7.5"
+        versionCode 2
+        versionName "2.0 beta"
     }
     buildTypes {
         debug {
@@ -24,7 +24,7 @@ android {
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             output.outputFile = new File(output.outputFile.parent,
-                    "OnDemand-${variant.buildType.name}-${variant.versionName}-${getTime()}.apk")
+                    "OnDemand-${variant.buildType.name}-${variant.versionName}.apk")
         }
     }
 }

@@ -1,15 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <declare-styleable name="CirclePathButton">
+        <attr name="circlePathOffset" format="dimension"/>
+        <attr name="circlePathWidth" format="dimension"/>
+        <attr name="circlePathColor" format="color"/>
+        <attr name="circlePathSelectColor" format="color"/>
+        <attr name="circlePathDrawDelay" format="integer"/>
+        <attr name="circlePathDrawStep" format="integer"/>
+        <attr name="circlePathBorderStyle" format="boolean"/>
+        <attr name="circlePathSelectStyle" format="boolean"/>
+        <attr name="circlePathBorderColor" format="color"/>
+        <attr name="circlePathStartAngle" format="float"/>
+    </declare-styleable>
+
+    <declare-styleable name="LovePathProgress">
+        <attr name="lovePathColor" format="color"/>
+        <attr name="lovePathWidth" format="dimension"/>
+        <attr name="lovePathDrawDelay" format="integer"/>
+        <attr name="lovePathPauseTime" format="integer"/>
+        <attr name="lovePathMinSize" format="dimension"/>
+        <attr name="lovePathDrawStep" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="BorderButton">
+        <attr name="borderBtWidth" format="dimension"/>
+        <attr name="borderBtRound" format="dimension"/>
+        <attr name="borderBtColor" format="color"/>
+        <attr name="borderBtColorPress" format="color"/>
+        <attr name="borderBtColorBg" format="color"/>
+        <attr name="borderBtColorBgPress" format="color"/>
+    </declare-styleable>
+
+
     <declare-styleable name="PathButton">
-        <attr name="pathOffset" format="dimension"/>
         <attr name="pathWidth" format="dimension"/>
         <attr name="pathColor" format="color"/>
-        <attr name="pathDrawDelay" format="integer"/>
-        <attr name="pathDrawStep" format="integer"/>
-        <attr name="pathBorderStyle" format="boolean"/>
-        <attr name="pathBorderWidth" format="dimension"/>
-        <attr name="pathBorderRound" format="dimension"/>
-        <attr name="pathBorderColor" format="color"/>
+        <attr name="pathRound" format="dimension"/>
 
         <attr name="pathStartGravity" format="integer">
             <enum name="LEFT_TOP" value="1"/>

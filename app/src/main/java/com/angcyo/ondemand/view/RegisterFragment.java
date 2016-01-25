@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSpinner;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,12 @@ import com.angcyo.ondemand.Main2Activity;
 import com.angcyo.ondemand.R;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
+import com.angcyo.ondemand.control.RTableControl;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.event.EventRegister;
+import com.angcyo.ondemand.model.TableMember;
+import com.angcyo.ondemand.util.MD5;
+import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
 
@@ -48,6 +53,7 @@ public class RegisterFragment extends BaseFragment {
     AppCompatEditText pwRp;
     @Bind(R.id.register_member)
     AppCompatButton register;
+    private TableMember member;
 
     public static RegisterFragment newInstance() {
         RegisterFragment fragment = new RegisterFragment();
@@ -70,7 +76,7 @@ public class RegisterFragment extends BaseFragment {
 
     @Override
     protected void initView(View rootView) {
-    //
+        //
         //
     }
 
@@ -84,7 +90,7 @@ public class RegisterFragment extends BaseFragment {
                     if (Util.isNetOk(mBaseActivity)) {
                         EventRegister eventRegister = new EventRegister();
                         try {
-//                            RTableControl.addMember(new TableMember());//
+                            RTableControl.addMember(member);//注册用户
                             EventBus.getDefault().post(eventRegister);
                         } catch (Exception e) {
                             eventRegister.isSuccess = false;
@@ -100,17 +106,82 @@ public class RegisterFragment extends BaseFragment {
         }
     }
 
+    private void verifyPhone(final String phone) {
+        RWorkService.addTask(new RWorkThread.TaskRunnable() {
+            @Override
+            public void run() {
+                if (Util.isNetOk(mBaseActivity)) {
+                    EventRegister eventRegister = new EventRegister();
+                    eventRegister.isMemberExist = RTableControl.isMemberExist(phone);//验证手机号码是否已注册
+                    EventBus.getDefault().post(eventRegister);
+                }
+            }
+        });
+    }
+
     private boolean verifyEdit() {
+        member = new TableMember();
+
+        member.setName_real(name.getText().toString());
+        if (TextUtils.isEmpty(member.getName_real())) {
+            name.requestFocus();
+            name.setError("请输入真实姓名.");
+            return false;
+        }
+        member.setName_login(cardNum.getText().toString());
+        if (TextUtils.isEmpty(member.getName_login()) || member.getName_login().length() < 17) {
+            cardNum.requestFocus();
+            cardNum.setError("请输入有效省份证号.");
+            return false;
+        }
+
+        member.setPhone(phone.getText().toString());
+        if (TextUtils.isEmpty(member.getPhone()) || !PhoneUtil.isPhone(member.getPhone())) {
+            phone.requestFocus();
+            phone.setError("请输入有效手机号码.");
+            return false;
+        }
+
+        String pwStr = pw.getText().toString();
+        if (TextUtils.isEmpty(pwStr)) {
+            pw.requestFocus();
+            pw.setError("请输入密码.");
+            return false;
+        }
+
+        String pwRpStr = pwRp.getText().toString();
+        if (TextUtils.isEmpty(pwRpStr)) {
+            pwRp.requestFocus();
+            pwRp.setError("请确认密码.");
+            return false;
+        }
+
+        if (!pwStr.equals(pwRpStr)) {
+            pw.requestFocus();
+            pw.setError("两次密码不一致.");
+            return false;
+        }
+
+        member.setPsw(MD5.toMD5(pwStr));
         return true;
     }
 
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(EventRegister event) {
-        if (event.isSuccess) {
-            mBaseActivity.launchActivity(Main2Activity.class);
-            mBaseActivity.finish();
+        if (event.isVerify) {
+            if (event.isMemberExist) {
+                phone.requestFocus();
+                phone.setError("手机已被注册");
+                return;
+            }
         } else {
-            PopupTipWindow.showTip(mBaseActivity, "注册失败");
+            if (event.isSuccess) {
+                PopupTipWindow.showTip(mBaseActivity, "注册成功");
+                mBaseActivity.launchActivity(Main2Activity.class);
+                mBaseActivity.finish();
+            } else {
+                PopupTipWindow.showTip(mBaseActivity, "注册失败");
+            }
         }
     }
 

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="true"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:clickable="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:paddingTop="10dp"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingTop="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -17,6 +17,24 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:orientation="vertical">
+
+            <!--昵称-->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/nick_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="昵称"
+                    android:inputType="text"
+                    android:maxLength="5"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
 
             <!--注册姓名-->
             <android.support.design.widget.TextInputLayout
@@ -38,7 +56,8 @@
             <!--省份证号码-->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="visible">
 
                 <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/card_num"
@@ -55,7 +74,8 @@
             <!--家庭住址-->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
                 <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/family_addrs"
@@ -71,7 +91,8 @@
             <!--现居地-->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
                 <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/now_addrs"
@@ -84,14 +105,6 @@
                     android:singleLine="true"/>
             </android.support.design.widget.TextInputLayout>
 
-            <!--服务商圈-->
-            <android.support.v7.widget.AppCompatSpinner
-                android:id="@+id/trading_area"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:entries="@array/trading_area"
-                android:gravity="center"/>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -109,6 +122,7 @@
                     android:singleLine="true"/>
             </android.support.design.widget.TextInputLayout>
 
+            <!--密码-->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -124,6 +138,7 @@
                     android:singleLine="true"/>
             </android.support.design.widget.TextInputLayout>
 
+            <!--确认密码-->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -139,23 +154,36 @@
                     android:singleLine="true"/>
             </android.support.design.widget.TextInputLayout>
 
-            <android.support.v7.widget.LinearLayoutCompat
+
+            <!--服务商圈-->
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/trading_area"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_margin="10dp"
+                android:padding="10dp"
+                android:entries="@array/trading_area"
+                android:gravity="center"/>
 
-                <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/register_member"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/login_bg_selector"
-                    android:gravity="center"
-                    android:text="注册"
-                    android:textColor="@android:color/white"/>
-            </android.support.v7.widget.LinearLayoutCompat>
         </LinearLayout>
 
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/register_member"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/login_bg_selector"
+                android:gravity="center"
+                android:text="注册"
+                android:textColor="@android:color/white"/>
+        </android.support.v7.widget.LinearLayoutCompat>
     </RelativeLayout>
-</ScrollView>
+</RelativeLayout>

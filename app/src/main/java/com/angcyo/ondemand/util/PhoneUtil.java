@@ -13,6 +13,7 @@ import android.telephony.SmsManager;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * Created by angcyo on 15-10-11-011.
@@ -111,5 +112,11 @@ public class PhoneUtil {
         public static void MsgToast(Context context, String toask) {
             Toast.makeText(context, toask, Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**判断是否是手机号码*/
+    public static boolean isPhone(CharSequence input) {
+        Pattern pattern = Pattern.compile("^[1][358][0-9]{9}$");// 1\d{10}
+        return pattern.matcher(input).matches();
     }
 }

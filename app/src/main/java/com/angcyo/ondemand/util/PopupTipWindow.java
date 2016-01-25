@@ -43,7 +43,7 @@ public class PopupTipWindow {
 
     public PopupTipWindow(Context context, String tip) {
         this.tip = tip;
-        wManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        wManager = (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         rootLayout = new TextView(context);
         rootLayout.setText(tip);
         rootLayout.setPadding(20, 10, 10, 10);
