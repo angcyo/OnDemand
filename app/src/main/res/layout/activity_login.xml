@@ -161,18 +161,14 @@
             </android.support.v7.widget.LinearLayoutCompat>
         </LinearLayout>
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/app_ver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_margin="2dp"
+            android:paddingRight="8dp"
+            android:textColor="@color/colorAccent"
+            tools:text="版本:1.2.3r"/>
     </FrameLayout>
-
-
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/app_ver"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="2dp"
-        android:paddingRight="8dp"
-        android:textColor="@color/colorAccent"
-        tools:text="版本:1.2.3r"/>
-
 </RelativeLayout>

@@ -1,6 +1,7 @@
 package com.angcyo.ondemand;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -269,5 +270,10 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         super.onCreate(savedInstanceState);
         // TODO: add setContentView(...) invocation
         ButterKnife.bind(this);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 }

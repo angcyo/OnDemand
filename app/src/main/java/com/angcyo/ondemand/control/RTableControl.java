@@ -471,10 +471,7 @@ public class RTableControl {
             String queryString = String.format("SELECT * FROM ds_member WHERE phone = '%s'",
                     phone);
             ResultSet rs = statement.executeQuery(queryString);
-            int row = rs.getRow();
-            if (row > 0) {
-                result = true;
-            }
+            result = rs.next();
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();

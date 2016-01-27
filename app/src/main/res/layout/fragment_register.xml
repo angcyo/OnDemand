@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/white"
     android:clickable="true">
 
@@ -174,16 +175,31 @@
             android:layout_alignParentBottom="true"
             android:orientation="horizontal">
 
-            <android.support.v7.widget.AppCompatButton
+            <com.angcyo.ondemand.view.PathButton
                 android:id="@+id/register_member"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@null"
+                android:textColor="@color/colorAccent"
+                app:pathColor="@color/colorAccent"
+                android:text="注&#160;&#160;册"
                 android:layout_weight="1"
-                android:background="@drawable/login_bg_selector"
-                android:gravity="center"
-                android:text="注册"
-                android:textColor="@android:color/white"/>
+                android:layout_height="wrap_content"/>
+
+            <!--<android.support.v7.widget.AppCompatButton-->
+                <!--android:id="@+id/register_member"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_margin="10dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="@drawable/login_bg_selector"-->
+                <!--android:gravity="center"-->
+                <!--android:text="注册"-->
+                <!--android:textColor="@android:color/white"/>-->
         </android.support.v7.widget.LinearLayoutCompat>
     </RelativeLayout>
 </RelativeLayout>

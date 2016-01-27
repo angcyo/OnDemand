@@ -1,7 +1,7 @@
 package com.angcyo.ondemand.view;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSpinner;
 import android.text.TextUtils;
@@ -52,8 +52,10 @@ public class RegisterFragment extends BaseFragment {
     @Bind(R.id.pw_rp)
     AppCompatEditText pwRp;
     @Bind(R.id.register_member)
-    AppCompatButton register;
+    PathButton register;
     private TableMember member;
+
+    private boolean isMemberExist = false;
 
     public static RegisterFragment newInstance() {
         RegisterFragment fragment = new RegisterFragment();
@@ -76,8 +78,27 @@ public class RegisterFragment extends BaseFragment {
 
     @Override
     protected void initView(View rootView) {
-        //
-        //
+        phone.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                String str = phone.getText().toString();
+                if (!hasFocus) {//丢失焦点
+                    if (!TextUtils.isEmpty(str)) {//不为空
+                        if (str.length() < 11) {
+                            phone.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    phone.requestFocus();
+                                    phone.setError("请输入11位手机号码");
+                                }
+                            }, 100);
+                            return;
+                        }
+                        verifyPhone(str);
+                    }
+                }
+            }
+        });
     }
 
     @OnClick(R.id.register_member)
@@ -113,6 +134,7 @@ public class RegisterFragment extends BaseFragment {
                 if (Util.isNetOk(mBaseActivity)) {
                     EventRegister eventRegister = new EventRegister();
                     eventRegister.isMemberExist = RTableControl.isMemberExist(phone);//验证手机号码是否已注册
+                    eventRegister.isVerify = true;
                     EventBus.getDefault().post(eventRegister);
                 }
             }
@@ -169,9 +191,10 @@ public class RegisterFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(EventRegister event) {
         if (event.isVerify) {
+            isMemberExist = event.isMemberExist;
             if (event.isMemberExist) {
                 phone.requestFocus();
-                phone.setError("手机已被注册");
+                phone.setError("手机号码已被注册");
                 return;
             }
         } else {
@@ -188,12 +211,31 @@ public class RegisterFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        e(new Exception().getStackTrace()[0].getMethodName());
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        e(new Exception().getStackTrace()[0].getMethodName());
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        e(new Exception().getStackTrace()[0].getMethodName());
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        e(new Exception().getStackTrace()[0].getMethodName());
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 }
