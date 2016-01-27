@@ -9,19 +9,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 
 import com.angcyo.ondemand.Main2Activity;
+import com.angcyo.ondemand.OdApplication;
 import com.angcyo.ondemand.R;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;
+import com.angcyo.ondemand.event.EventGetTradingArea;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.event.EventRegister;
 import com.angcyo.ondemand.model.TableMember;
+import com.angcyo.ondemand.model.TableTradingArea;
+import com.angcyo.ondemand.model.UserInfo;
 import com.angcyo.ondemand.util.MD5;
 import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
+
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -35,6 +42,7 @@ import de.greenrobot.event.ThreadMode;
  */
 public class RegisterFragment extends BaseFragment {
 
+    public ArrayList<TableTradingArea> tableTradingAreas;//所有商圈
     @Bind(R.id.name)
     AppCompatEditText name;
     @Bind(R.id.card_num)
@@ -53,8 +61,8 @@ public class RegisterFragment extends BaseFragment {
     AppCompatEditText pwRp;
     @Bind(R.id.register_member)
     PathButton register;
+    ArrayAdapter<String> adapter;
     private TableMember member;
-
     private boolean isMemberExist = false;
 
     public static RegisterFragment newInstance() {
@@ -99,6 +107,35 @@ public class RegisterFragment extends BaseFragment {
                 }
             }
         });
+
+        adapter = new ArrayAdapter<>(mBaseActivity, R.layout.spinner_item_layout);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        adapter.add("请选择商圈");
+        tradingArea.setAdapter(adapter);
+    }
+
+    @Override
+    protected void initAfter() {
+        super.initAfter();
+        loadTradingAreaData();
+    }
+
+    /**
+     * 获取商圈信息
+     */
+    private void loadTradingAreaData() {
+        RWorkService.addTask(new RWorkThread.TaskRunnable() {
+            @Override
+            public void run() {
+                if (Util.isNetOk(mBaseActivity)) {
+                    EventGetTradingArea eventGetTradingArea = new EventGetTradingArea();
+                    eventGetTradingArea.tableTradingAreas = RTableControl.getAllTradingArea();
+                    EventBus.getDefault().post(eventGetTradingArea);
+                } else {
+                    EventBus.getDefault().post(new EventNoNet());
+                }
+            }
+        });
     }
 
     @OnClick(R.id.register_member)
@@ -111,12 +148,16 @@ public class RegisterFragment extends BaseFragment {
                     if (Util.isNetOk(mBaseActivity)) {
                         EventRegister eventRegister = new EventRegister();
                         try {
-                            RTableControl.addMember(member);//注册用户
-                            EventBus.getDefault().post(eventRegister);
+                            if (!RTableControl.isMemberExist(phone.getText().toString())/*验证手机号码是否已注册}*/) {
+                                RTableControl.addMember(member);//注册用户
+                                eventRegister.isSuccess = true;
+                            } else {
+                                eventRegister.isSuccess = false;
+                            }
                         } catch (Exception e) {
                             eventRegister.isSuccess = false;
-                            EventBus.getDefault().post(eventRegister);
                         }
+                        EventBus.getDefault().post(eventRegister);
                     } else {
                         EventBus.getDefault().post(new EventNoNet());
                     }
@@ -141,6 +182,9 @@ public class RegisterFragment extends BaseFragment {
         });
     }
 
+    /**
+     * 验证输入框信息
+     */
     private boolean verifyEdit() {
         member = new TableMember();
 
@@ -185,6 +229,9 @@ public class RegisterFragment extends BaseFragment {
         }
 
         member.setPsw(MD5.toMD5(pwStr));
+        if (tradingArea.getSelectedItemPosition() != 0 && tableTradingAreas != null && tableTradingAreas.size() > 0) {
+            member.setId_tradingarea(tableTradingAreas.get(tradingArea.getSelectedItemPosition() - 1).getSid());//商圈id
+        }
         return true;
     }
 
@@ -200,12 +247,27 @@ public class RegisterFragment extends BaseFragment {
         } else {
             if (event.isSuccess) {
                 PopupTipWindow.showTip(mBaseActivity, "注册成功");
+                OdApplication.userInfo = new UserInfo();
+                OdApplication.userInfo.member = member;//保存登录信息
                 mBaseActivity.launchActivity(Main2Activity.class);
                 mBaseActivity.finish();
             } else {
                 PopupTipWindow.showTip(mBaseActivity, "注册失败");
             }
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void onEvent(EventGetTradingArea event) {
+        tableTradingAreas = event.tableTradingAreas;
+        ArrayList<String> items = new ArrayList<>();
+
+        items.add("请选择商圈...");
+        for (TableTradingArea area : tableTradingAreas) {
+            items.add(area.getDscrp());
+        }
+        adapter.clear();
+        adapter.addAll(items);
     }
 
     @Override
@@ -226,6 +288,12 @@ public class RegisterFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         e(new Exception().getStackTrace()[0].getMethodName());
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        e(isVisibleToUser + "-->" + new Exception().getStackTrace()[0].getMethodName());
     }
 
     @Override

@@ -250,7 +250,7 @@ public class PathButton extends BasePathButton {
         stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressDrawable);
 
         //正常状态,边框
-        RoundRectShape rectShape = new RoundRectShape(outRadii, new RectF(width, width, width, width), outRadii);
+        RoundRectShape rectShape = new RoundRectShape(outRadii, new RectF(width, width, width, width), null);
         ShapeDrawable shape = new ShapeDrawable(rectShape);
         shape.getPaint().setColor(color);
         //正常背景

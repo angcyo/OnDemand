@@ -33,6 +33,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         initView(savedInstanceState);
         initAfter();
         initEvent();
+        initViewData();
 
         initWindowAnim();
     }
@@ -60,6 +61,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     }
 
+    protected void initViewData() {
+
+    }
+
     /**
      * Init view.
      */
@@ -72,6 +77,12 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void launchActivity(Class c) {
         Intent intent = new Intent(this, c);
+        startActivity(intent);
+    }
+
+    public void launchActivity(Class c, Bundle args) {
+        Intent intent = new Intent(this, c);
+        intent.putExtras(args);
         startActivity(intent);
     }
 

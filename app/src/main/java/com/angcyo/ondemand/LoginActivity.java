@@ -1,12 +1,12 @@
 package com.angcyo.ondemand;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -46,6 +46,8 @@ import de.greenrobot.event.ThreadMode;
 public class LoginActivity extends BaseActivity implements View.OnLongClickListener {
     public static String KEY_USER_NAME = "user_name";
     public static String KEY_USER_PW = "user_pw";
+    public static String KEY_REMEMBER_PW = "remember_pw";
+    public static String KEY_SHOW_PW = "show_pw";
     public static String KEY_USER_COMPANY = "user_company";
     public static boolean useSellerLogin = false;//使用商家匹配登录, 默认使用物流公司登录
     @Bind(R.id.toolbar)
@@ -64,6 +66,10 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
     UserInfo userInfo;
     @Bind(R.id.cbUseSeller)
     AppCompatCheckBox cbUseSeller;
+    @Bind(R.id.remember)
+    AppCompatCheckBox remember;
+    @Bind(R.id.show)
+    AppCompatCheckBox show;
 
     /**
      * 判断是否是手机号码
@@ -94,7 +100,7 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         appVer.setText("版本:" + RConstant.VERSION);
 
         phone.setText(((String) Hawk.get(KEY_USER_NAME)));
-        pw.setText(((String) Hawk.get(KEY_USER_PW)));
+        pw.setText(Hawk.get(KEY_USER_PW, ""));
         company.setText(((String) Hawk.get(KEY_USER_COMPANY)));
 
         cbUseSeller.setVisibility(View.GONE);
@@ -105,7 +111,7 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
 //        }
 
         //v2 版本修改
-        if (OdApplication.userInfo != null) {
+        if (OdApplication.userInfo != null && Hawk.get(KEY_REMEMBER_PW, false)) {
             launchActivity(Main2Activity.class);
             super.onBackPressed();
         }
@@ -124,6 +130,42 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
                 useSellerLogin = isChecked;
             }
         });
+
+        remember.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Hawk.put(KEY_REMEMBER_PW, isChecked);
+                if (!isChecked) {
+                    Hawk.put(KEY_USER_PW, "");
+                }
+            }
+        });
+
+        show.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Hawk.put(KEY_SHOW_PW, isChecked);
+                if (isChecked) {
+                    pw.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                } else {
+                    pw.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void initViewData() {
+        super.initViewData();
+        remember.setChecked(Hawk.get(KEY_REMEMBER_PW, true));
+        show.setChecked(Hawk.get(KEY_SHOW_PW, false));
+
+        RWorkService.addTask(new RWorkThread.TaskRunnable() {
+            @Override
+            public void run() {
+                RTableControl.getAllDeliveryservice2();
+            }
+        });
     }
 
     @OnClick(R.id.login)
@@ -133,12 +175,16 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
             RWorkService.addTask(new RWorkThread.TaskRunnable() {
                 @Override
                 public void run() {
+                    EventLogin eventLogin = new EventLogin();
                     if (Util.isNetOk(LoginActivity.this)) {
-                        RTableControl.getAllMember();
-                        RTableControl.getAllCompany();
-                        RTableControl.getAllPlatform();
-                        RTableControl.getAllSellerIndexes();
-                        EventBus.getDefault().post(new EventLogin());
+//                        RTableControl.getAllMember();
+//                        RTableControl.getAllCompany();
+//                        RTableControl.getAllPlatform();
+//                        RTableControl.getAllSellerIndexes();
+                        TableMember member = RTableControl.getLoginMember(phone.getText().toString(), MD5.toMD5(pw.getText().toString()));
+                        eventLogin.isSucceed = true;
+                        eventLogin.member = member;
+                        EventBus.getDefault().post(eventLogin);
                     } else {
                         EventBus.getDefault().post(new EventNoNet());
                     }
@@ -194,12 +240,16 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(EventLogin event) {
         hideDialogTip();
-        for (TableMember member : RTableControl.members) {
-            if (member.getPhone().trim().equalsIgnoreCase(strPhone) && member.getPsw().trim().equals(MD5.toMD5(strPw))) {//手机号 和密码 相等
+        if (event.member != null) {
+            onLoginSucceed(event.member, null, null);
+            return;
+        }
+
+//        for (TableMember member : RTableControl.members) {
+//            if (member.getPhone().trim().equalsIgnoreCase(strPhone) && member.getPsw().trim().equals(MD5.toMD5(strPw))) {//手机号 和密码 相等
 //                for (TableSellerIndex sellerIndex : RTableControl.sellerIndexes) {
 //                    if (sellerIndex.getCompany().trim().equalsIgnoreCase(strCompany)) {//含有登录的 服务商家
-                //登录成功
-                onLoginSucceed(member, null, null);
+        //登录成功
 //                        return;
 //                    }
 //                }
@@ -224,8 +274,8 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
 //                        }
 //                    }
 //                }
-            }
-        }
+//            }
+//        }
         PopupTipWindow.showTip(this, "登录失败");
     }
 
@@ -238,7 +288,9 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
 
         //保存登录信息
         Hawk.put(KEY_USER_NAME, strPhone);
-        Hawk.put(KEY_USER_PW, strPw);
+        if (remember.isChecked()) {
+            Hawk.put(KEY_USER_PW, strPw);
+        }
         Hawk.put(KEY_USER_COMPANY, strCompany);
 
         RWorkService.addTask(new RWorkThread.TaskRunnable() {
@@ -263,17 +315,5 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
             ((EditText) v).setText("");
         }
         return false;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
     }
 }

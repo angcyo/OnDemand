@@ -327,7 +327,9 @@ public class CirclePathButton extends Button {
         fillTickPath();
     }
 
-    /**对勾的path, 一个点一个点的添加*/
+    /**
+     * 对勾的path, 一个点一个点的添加
+     */
     private void fillTickPath() {
         mPathTick.reset();
         mTickLeftList = new ArrayList<>();
@@ -433,7 +435,7 @@ public class CirclePathButton extends Button {
      */
     private RectF getDrawRectF() {
         RectF rectF = new RectF();
-        int padding = getPaddingTop();//注意 只是用xml中的padding属性
+        int padding = getPaddingLeft();//注意 只是用xml中的padding属性
         rectF.set(padding, padding, mViewWidth - padding, mViewHeight - padding);
         return rectF;
     }
@@ -446,10 +448,16 @@ public class CirclePathButton extends Button {
         this.onSelectChanged = onSelectChanged;
     }
 
-    public interface OnSelectChanged {
-        void onSelectChanged(View view, boolean isSelect);
+    @Override
+    public boolean isSelected() {
+        return isSelected;
     }
 
+    @Override
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+        postInvalidate();
+    }
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
@@ -466,5 +474,9 @@ public class CirclePathButton extends Button {
         bundle.putBoolean("IS_SELECT", isSelected);
         bundle.putParcelable("STATE", super.onSaveInstanceState());
         return bundle;
+    }
+
+    public interface OnSelectChanged {
+        void onSelectChanged(View view, boolean isSelect);
     }
 }

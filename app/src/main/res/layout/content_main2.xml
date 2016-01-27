@@ -2,18 +2,20 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                xmlns:tools="http://schemas.android.com/tools"
-                tools:showIn="@layout/activity_main2"
+                android:fitsSystemWindows="true"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                android:fitsSystemWindows="true">
+                tools:showIn="@layout/activity_main2">
 
     <LinearLayout
+        android:id="@+id/title_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <!--标题提示-->
         <LinearLayout
             android:id="@+id/layout"
             android:layout_width="match_parent"
@@ -27,21 +29,21 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.35"
                 android:text="商家名称"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/colorAccent"/>
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.35"
                 android:text="订单号"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/colorAccent"/>
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.15"
                 android:text="已接单"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/colorAccent"/>
 
             <TextView
                 android:layout_width="0dp"
@@ -49,28 +51,27 @@
                 android:layout_weight="0.15"
                 android:gravity="center"
                 android:text="已取货"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/red_dark"/>
 
         </LinearLayout>
 
+        <!--订单列表-->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/oddnum_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_weight="1"
+            android:layout_height="0dp"/>
 
+        <!--配送按钮-->
+        <com.angcyo.ondemand.view.PathButton
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@null"
+            android:text="开始配送"
+            android:textColor="@color/colorAccent"
+            app:pathWidth="2dp"
+            app:pathColor="@color/colorAccent"/>
     </LinearLayout>
-
-    <com.angcyo.ondemand.view.PathButton
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="20dp"
-        android:background="@null"
-        android:textColor="@color/colorAccent"
-        app:pathColor="@color/colorAccent"
-        android:text="开始配送"
-        android:layout_height="wrap_content"/>
 </RelativeLayout>

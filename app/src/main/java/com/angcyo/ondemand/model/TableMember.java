@@ -7,7 +7,7 @@ import com.angcyo.ondemand.util.Util;
  * Created by angcyo on 15-09-26-026.
  */
 public class TableMember extends BaseTable {
-    String name_login;//		varchar	50	50	0			登陆名
+    String name_login;//		varchar	50	50	0			登陆名,,已经变成身份证信息了
     String name_real;//		varchar	8	8	0	√		实名
     String phone;//		varchar	13	13	0			电话
     int id_company;//		int	4	10	0			所属单位（SID）

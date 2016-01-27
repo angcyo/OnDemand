@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/platform"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4"
+            tools:text="美团网购"/>
+
+        <TextView
+            android:id="@+id/oddnum"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.6"
+            tools:text="订单号"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_height="wrap_content">
+
+            <com.angcyo.ondemand.view.CirclePathButton
+                android:id="@+id/accept"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="5dp"
+                app:circlePathBorderColor="@color/colorAccent"
+                app:circlePathSelectColor="@color/colorAccent"
+                app:circlePathColor="@color/colorAccent"
+                android:layout_centerInParent="true"
+                app:circlePathSelectStyle="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_height="wrap_content">
+
+            <com.angcyo.ondemand.view.CirclePathButton
+                android:id="@+id/take"
+                android:layout_width="40dp"
+                android:padding="5dp"
+                app:circlePathBorderColor="@color/red_dark"
+                app:circlePathSelectColor="@color/red_dark"
+                app:circlePathColor="@color/red_dark"
+                android:layout_height="40dp"
+                android:layout_centerInParent="true"
+                app:circlePathSelectStyle="true"/>
+        </RelativeLayout>
+
+
+        <!--<TextView-->
+        <!--android:id="@+id/customerPhone"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="0.3"-->
+        <!--tools:text="客户电话" />-->
+
+        <!--<LinearLayout-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="0.3"-->
+        <!--android:gravity="center"-->
+        <!--android:orientation="horizontal">-->
+
+        <!--<CheckBox-->
+        <!--android:id="@+id/cancel"-->
+        <!--style="@style/StyleCheckButton"-->
+        <!--android:background="@drawable/check_bt_red_selector"-->
+        <!--android:text="撤销" />-->
+
+        <!--<CheckBox-->
+        <!--android:id="@+id/ok"-->
+        <!--style="@style/StyleCheckButton"-->
+        <!--android:text="送达" />-->
+        <!--</LinearLayout>-->
+    </LinearLayout>
+</RelativeLayout>

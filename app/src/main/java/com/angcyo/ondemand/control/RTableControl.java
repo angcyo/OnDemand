@@ -2,12 +2,14 @@ package com.angcyo.ondemand.control;
 
 import com.angcyo.ondemand.OdApplication;
 import com.angcyo.ondemand.components.RConstant;
+import com.angcyo.ondemand.model.DeliveryserviceBean;
 import com.angcyo.ondemand.model.TableCompany;
 import com.angcyo.ondemand.model.TableCustomer;
 import com.angcyo.ondemand.model.TableDeliveryservice;
 import com.angcyo.ondemand.model.TableMember;
 import com.angcyo.ondemand.model.TablePlatform;
 import com.angcyo.ondemand.model.TableSellerIndex;
+import com.angcyo.ondemand.model.TableTradingArea;
 import com.angcyo.ondemand.util.Util;
 
 import java.sql.CallableStatement;
@@ -485,7 +487,7 @@ public class RTableControl {
     /**
      * 返回登录成功后的用户信息
      */
-    public static TableMember getLoginMenmber(String phone, String md5Pwd) {
+    public static TableMember getLoginMember(String phone, String md5Pwd) {
         TableMember member = null;
         Connection connection;
         try {
@@ -512,7 +514,71 @@ public class RTableControl {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
         return member;
+    }
+
+    /**
+     * 获取所有商圈
+     */
+    public static ArrayList<TableTradingArea> getAllTradingArea() {
+        ArrayList<TableTradingArea> tradingAreas = new ArrayList<>();
+        Connection connection;
+        TableTradingArea data;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String queryString = "SELECT * FROM od_tradingarea";
+            ResultSet rs = statement.executeQuery(queryString);
+            while (rs.next()) {
+                data = new TableTradingArea();
+                data.setPid(rs.getInt(1));
+                data.setSid(rs.getInt(2));
+                data.setDscrp(rs.getString(3));
+                data.setSeqc(rs.getInt(4));
+                data.setClsid(rs.getInt(5));
+                tradingAreas.add(data);
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return tradingAreas;
+    }
+
+    /**
+     * 获取配送员和商圈都相同,切状态为0,今天的订单
+     */
+    public static ArrayList<DeliveryserviceBean> getAllDeliveryservice2() {
+        //select * from dbo.get_tradingarea_order_seller(50) where  status=0 and dt_create>='2015-11-16 12:00'
+        ArrayList<DeliveryserviceBean> beans = new ArrayList<>();
+        Connection connection;
+        DeliveryserviceBean data;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String rawSql = "select * from dbo.get_tradingarea_order_seller(50) where  status=0 and dt_create>='%s'";
+            String queryString = String.format(rawSql, Util.getDate());
+            ResultSet rs = statement.executeQuery(queryString);
+            while (rs.next()) {
+                data = new DeliveryserviceBean();
+                data.setSid(rs.getInt(1));
+                data.setSeller_order_identifier(rs.getInt(2));
+                data.setStatus(rs.getInt(3));
+                data.setComment(rs.getString(4));
+                data.setDt_create(rs.getString(5));
+                data.setCaption(rs.getString(6));
+                beans.add(data);
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return beans;
     }
 }
