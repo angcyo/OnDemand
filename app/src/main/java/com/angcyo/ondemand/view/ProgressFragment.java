@@ -22,6 +22,7 @@ public class ProgressFragment extends BaseDialogFragment {
 
     private static String KEY_TIP = "tip";
     private String tip;
+    private TextView textView;
 
     public static ProgressFragment newInstance(@NonNull String tip) {
         ProgressFragment progressFragment = new ProgressFragment();
@@ -45,7 +46,7 @@ public class ProgressFragment extends BaseDialogFragment {
         linearLayout.addView(progressBar, new LinearLayout.LayoutParams(barSize, barSize));
 
         if (!Util.isEmpty(tip)) {
-            TextView textView = new TextView(getActivity());
+            textView = new TextView(getActivity());
             textView.setPadding(0, 0, (int) getResources().getDimension(R.dimen.layout_margin), 0);
             textView.setText(tip);
             textView.setSingleLine();
@@ -63,6 +64,12 @@ public class ProgressFragment extends BaseDialogFragment {
     protected void initViewBefore(Bundle savedInstanceState) {
         super.initViewBefore(savedInstanceState);
         tip = getArguments().getString(KEY_TIP, "");
+    }
+
+    public void updateText(String text) {
+        if (textView != null) {
+            textView.setText(text);
+        }
     }
 
     @Override

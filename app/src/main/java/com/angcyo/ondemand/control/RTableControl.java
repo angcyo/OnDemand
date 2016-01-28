@@ -590,7 +590,7 @@ public class RTableControl {
             while (rs.next()) {
                 data = new DeliveryserviceBean();
                 data.setSid(rs.getInt(1));
-                data.setSeller_order_identifier(rs.getInt(2));
+                data.setSeller_order_identifier(rs.getString(2));
                 data.setStatus(rs.getInt(3));
                 data.setComment(rs.getString(4));
                 data.setDt_create(rs.getString(5));

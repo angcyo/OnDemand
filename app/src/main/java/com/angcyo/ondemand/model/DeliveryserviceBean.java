@@ -10,7 +10,7 @@ public class DeliveryserviceBean implements Parcelable{
     //select * from dbo.get_tradingarea_order_seller(50) where  status=0 and dt_create>='2015-11-16 12:00'
     //返回的值
     int sid;//订单sid
-    int seller_order_identifier;//订单号
+    String seller_order_identifier;//订单号
     int status;//订单状态
     String comment;//描述
     String dt_create;//创建时间
@@ -65,11 +65,11 @@ public class DeliveryserviceBean implements Parcelable{
         return this;
     }
 
-    public int getSeller_order_identifier() {
+    public String getSeller_order_identifier() {
         return seller_order_identifier;
     }
 
-    public DeliveryserviceBean setSeller_order_identifier(int seller_order_identifier) {
+    public DeliveryserviceBean setSeller_order_identifier(String seller_order_identifier) {
         this.seller_order_identifier = seller_order_identifier;
         return this;
     }
@@ -121,7 +121,7 @@ public class DeliveryserviceBean implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.sid);
-        dest.writeInt(this.seller_order_identifier);
+        dest.writeString(this.seller_order_identifier);
         dest.writeInt(this.status);
         dest.writeString(this.comment);
         dest.writeString(this.dt_create);
@@ -136,7 +136,7 @@ public class DeliveryserviceBean implements Parcelable{
 
     protected DeliveryserviceBean(Parcel in) {
         this.sid = in.readInt();
-        this.seller_order_identifier = in.readInt();
+        this.seller_order_identifier = in.readString();
         this.status = in.readInt();
         this.comment = in.readString();
         this.dt_create = in.readString();

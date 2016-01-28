@@ -97,6 +97,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void showDialogTip(String tip) {
         if (progressFragment != null) {
+            progressFragment.updateText(tip);
             return;
         }
         progressFragment = ProgressFragment.newInstance(tip);

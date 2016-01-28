@@ -21,6 +21,7 @@ import com.angcyo.ondemand.control.RTableControl;
 import com.angcyo.ondemand.event.EventAcceptOddnum;
 import com.angcyo.ondemand.event.EventDeliveryservice;
 import com.angcyo.ondemand.event.EventNoNet;
+import com.angcyo.ondemand.event.EventRefresh;
 import com.angcyo.ondemand.event.EventTakeOddnum;
 import com.angcyo.ondemand.model.DeliveryserviceBean;
 import com.angcyo.ondemand.util.PhoneUtil;
@@ -49,6 +50,7 @@ public class Main2Activity extends BaseActivity {
     OddAdapter oddAdapter;
     private boolean isSendSms = false;
     private boolean needLaunch = false;
+    private ArrayList<DeliveryserviceBean> oldBeans;
 
     @Override
     protected void initView(Bundle savedInstanceState) {
@@ -172,10 +174,47 @@ public class Main2Activity extends BaseActivity {
             return true;
         }
         if (id == R.id.refresh) {
-
+            onRefresh();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * 刷新订单列表,首先判断之前修改状态的订单是否已完成,再追加新增的订单
+     */
+    private void onRefresh() {
+        showDialogTip("刷新订单中....");
+        final ArrayList<DeliveryserviceBean> allAcceptOddnum = oddAdapter.getAllAcceptOddnum();
+        RWorkService.addTask(new RWorkThread.TaskRunnable() {
+            @Override
+            public void run() {
+                if (Util.isNetOk(Main2Activity.this)) {
+                    EventRefresh event = new EventRefresh();
+                    ArrayList<DeliveryserviceBean> beans = new ArrayList<DeliveryserviceBean>();
+                    for (DeliveryserviceBean bean : allAcceptOddnum) {
+                        if (!RTableControl.isOrderFinish(bean.getSeller_order_identifier())) {//保存未完成的订单
+                            beans.add(bean);
+                        }
+                    }
+                    event.isSucceed = true;
+                    event.beans = beans;
+                    EventBus.getDefault().post(event);
+                } else {
+                    EventBus.getDefault().post(new EventNoNet());
+                }
+            }
+        });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void onEvent(EventRefresh event) {
+        if (event.isSucceed) {
+            oddAdapter.resetData(event.beans);
+            oldBeans = event.beans;
+            setTitle("接单中:" + OdApplication.userInfo.member.getName_real() + "(" + event.beans.size() + ")");
+            loadDeliveryservice();
+        }
     }
 
     @Override
@@ -236,8 +275,12 @@ public class Main2Activity extends BaseActivity {
     public void onEvent(EventDeliveryservice event) {
         hideDialogTip();
         if (event.isSucceed) {
-            oddAdapter.resetData(event.beans);
-            setTitle("接单中:" + OdApplication.userInfo.member.getName_real() + "(" + event.beans.size() + ")");
+            oddAdapter.appendData(event.beans);
+            int oldSize = 0;
+            if (oldBeans != null) {
+                oldSize = oldBeans.size();
+            }
+            setTitle("接单中:" + OdApplication.userInfo.member.getName_real() + "(" + (event.beans.size() + oldSize) + ")");
         }
     }
 
@@ -324,13 +367,13 @@ public class Main2Activity extends BaseActivity {
                 @Override
                 public void run() {
                     try {
-                        netCommandCount.addAndGet(1);
                         if (isAccept) {
                             RTableControl.updateOddnumState(seller_order_identifier, 1);
                             EventBus.getDefault().post(new EventAcceptOddnum(position, true));
                         } else {
                             RTableControl.updateOddnumState(seller_order_identifier, 0);
                         }
+                        netCommandCount.addAndGet(1);
                     } catch (Exception e) {
                         EventBus.getDefault().post(new EventAcceptOddnum(position, false));
                     }
@@ -346,13 +389,13 @@ public class Main2Activity extends BaseActivity {
                 @Override
                 public void run() {
                     try {
-                        netCommandCount.addAndGet(1);
                         if (isTake) {
                             RTableControl.updateOddnumState(seller_order_identifier, 2);
                             EventBus.getDefault().post(new EventTakeOddnum(position, true));
                         } else {
                             RTableControl.updateOddnumState(seller_order_identifier, 1);
                         }
+                        netCommandCount.addAndGet(1);
                     } catch (Exception e) {
                         EventBus.getDefault().post(new EventTakeOddnum(position, false));
                     }
