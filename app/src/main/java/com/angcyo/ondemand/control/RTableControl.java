@@ -364,7 +364,7 @@ public class RTableControl {
         connection = getDb();
         Statement statement = connection.createStatement();
         String queryString = String.format("UPDATE order_deliveryservice set status = %d , dt_end = '%s' " +
-                "WHERE seller_order_identifier = '%s' and dt_create>='%s'",
+                        "WHERE seller_order_identifier = '%s' and dt_create>='%s'",
                 status, Util.getDateAndTime(), seller_order_identifier, Util.getDate());
         statement.executeUpdate(queryString);
         connection.close();
@@ -473,6 +473,30 @@ public class RTableControl {
             Statement statement = connection.createStatement();
             String queryString = String.format("SELECT * FROM ds_member WHERE phone = '%s'",
                     phone);
+            ResultSet rs = statement.executeQuery(queryString);
+            result = rs.next();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    /**
+     * 判断订单状态是否已完成
+     */
+    public static boolean isOrderFinish(String seller_order_identifier) {
+        boolean result = false;
+        Connection connection;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String rawSql = "SELECT * from order_deliveryservice WHERE seller_order_identifier='%s' and status=9  and dt_create>='%s'";
+            String queryString = String.format(rawSql,
+                    seller_order_identifier, Util.getDate());
             ResultSet rs = statement.executeQuery(queryString);
             result = rs.next();
             connection.close();
