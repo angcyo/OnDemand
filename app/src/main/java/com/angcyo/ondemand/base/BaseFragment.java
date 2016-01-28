@@ -32,7 +32,6 @@ public abstract class BaseFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadData(savedInstanceState);
-        isCreate = true;
     }
 
     @Nullable
@@ -41,10 +40,16 @@ public abstract class BaseFragment extends Fragment {
         rootView = loadView(inflater, container, savedInstanceState);
         initView(rootView);
         initAfter();
+        isCreate = true;
+        onLoadData();
         return rootView;
     }
 
-    protected abstract void loadData(Bundle savedInstanceState);
+    protected abstract void onLoadData();
+
+    protected void loadData(Bundle savedInstanceState){
+
+    }
 
     protected abstract View loadView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);
 

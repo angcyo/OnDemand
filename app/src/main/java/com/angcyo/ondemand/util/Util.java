@@ -143,9 +143,9 @@ public class Util {
      * @return 按照yyyy-MM-dd 格式返回日期
      */
     public static String getDate() {
-//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-//        return format.format(new Date());
-        return "2015-11-12";
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return format.format(new Date());
+//        return "2015-11-12";
     }
 
     /**

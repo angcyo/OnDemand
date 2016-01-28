@@ -87,6 +87,7 @@ public class CenterActivity extends BaseActivity {
         SwipeRefreshLayout refresh;
         private String type;
         private ItemAdapter itemAdapter;
+        private boolean isLoaded = false;
 
         public static CommonFragment newInstance(String type) {
             CommonFragment fragment = new CommonFragment();
@@ -97,12 +98,16 @@ public class CenterActivity extends BaseActivity {
         }
 
         @Override
+        protected void onLoadData() {
+            refresh.setRefreshing(true);
+            onRefresh();
+        }
+
+        @Override
         protected void loadData(Bundle savedInstanceState) {
             type = getArguments().getString(KEY_TYPE, TYPE_TODAY);
             EventBus.getDefault().register(this);
         }
-
-        private boolean isLoaded = false;
 
         @Override
         protected View loadView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -145,8 +150,6 @@ public class CenterActivity extends BaseActivity {
             if (event.isSucceed) {
                 itemAdapter.resetData(event.beans);
                 PopupTipWindow.showTip(mBaseActivity, "拉取到 " + event.beans.size() + "条数据");
-            } else {
-                PopupTipWindow.showTip(mBaseActivity, "拉取失败,刷新重试吧!");
             }
             isLoaded = false;
         }
@@ -222,6 +225,14 @@ public class CenterActivity extends BaseActivity {
      * 适配器
      */
     public static class CenterAdapter extends FragmentStatePagerAdapter {
+        static ArrayList<CommonFragment> fragments;
+
+        static {
+            fragments = new ArrayList<>();
+            fragments.add(CenterActivity.CommonFragment.newInstance(CenterActivity.CommonFragment.TYPE_TODAY));
+            fragments.add(CenterActivity.CommonFragment.newInstance(CenterActivity.CommonFragment.TYPE_HISTORY));
+        }
+
         public String[] tabTitles = new String[]{"今天的订单", "历史订单"};
 
         public CenterAdapter(FragmentManager fm) {
@@ -230,11 +241,7 @@ public class CenterActivity extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-            if (position == 0) {
-                return CenterActivity.CommonFragment.newInstance(CenterActivity.CommonFragment.TYPE_TODAY);
-            } else {
-                return CenterActivity.CommonFragment.newInstance(CenterActivity.CommonFragment.TYPE_HISTORY);
-            }
+            return fragments.get(position);
         }
 
         @Override

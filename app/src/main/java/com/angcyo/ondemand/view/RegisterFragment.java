@@ -304,6 +304,11 @@ public class RegisterFragment extends BaseFragment {
     }
 
     @Override
+    protected void onLoadData() {
+
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
