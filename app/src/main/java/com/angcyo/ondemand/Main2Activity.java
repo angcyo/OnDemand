@@ -367,13 +367,17 @@ public class Main2Activity extends BaseActivity {
                 @Override
                 public void run() {
                     try {
+                        EventAcceptOddnum eventAcceptOddnum = new EventAcceptOddnum(position);
                         if (isAccept) {
                             RTableControl.updateOddnumState(seller_order_identifier, 1);
-                            EventBus.getDefault().post(new EventAcceptOddnum(position, true));
+                            eventAcceptOddnum.state = 1;
                         } else {
                             RTableControl.updateOddnumState(seller_order_identifier, 0);
+                            eventAcceptOddnum.state = 0;
                         }
+                        eventAcceptOddnum.isSucceed = true;
                         netCommandCount.addAndGet(1);
+                        EventBus.getDefault().post(eventAcceptOddnum);
                     } catch (Exception e) {
                         EventBus.getDefault().post(new EventAcceptOddnum(position, false));
                     }
@@ -389,13 +393,17 @@ public class Main2Activity extends BaseActivity {
                 @Override
                 public void run() {
                     try {
+                        EventTakeOddnum eventTakeOddnum = new EventTakeOddnum(position);
                         if (isTake) {
                             RTableControl.updateOddnumState(seller_order_identifier, 2);
-                            EventBus.getDefault().post(new EventTakeOddnum(position, true));
+                            eventTakeOddnum.state = 2;
                         } else {
                             RTableControl.updateOddnumState(seller_order_identifier, 1);
+                            eventTakeOddnum.state = 1;
                         }
                         netCommandCount.addAndGet(1);
+                        eventTakeOddnum.isSucceed = true;
+                        EventBus.getDefault().post(eventTakeOddnum);
                     } catch (Exception e) {
                         EventBus.getDefault().post(new EventTakeOddnum(position, false));
                     }
@@ -410,7 +418,11 @@ public class Main2Activity extends BaseActivity {
                 mAllDatas.get(event.position).isAccept = false;
                 notifyItemChanged(event.position);
             } else {
-                nickAcceptBeans.add(mAllDatas.get(event.position));
+                if (event.state == 1) {
+                    nickAcceptBeans.add(mAllDatas.get(event.position));
+                } else {
+                    nickAcceptBeans.remove(mAllDatas.get(event.position));
+                }
             }
             ((Main2Activity) mContext).updateButtonUi();
         }
@@ -422,7 +434,11 @@ public class Main2Activity extends BaseActivity {
                 mAllDatas.get(event.position).isTake = false;
                 notifyItemChanged(event.position);
             } else {
-                nickTakeBeans.add(mAllDatas.get(event.position));
+                if (event.state == 2) {
+                    nickTakeBeans.add(mAllDatas.get(event.position));
+                } else {
+                    nickTakeBeans.remove(mAllDatas.get(event.position));
+                }
             }
             ((Main2Activity) mContext).updateButtonUi();
         }

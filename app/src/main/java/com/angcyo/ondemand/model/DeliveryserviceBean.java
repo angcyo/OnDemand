@@ -6,7 +6,18 @@ import android.os.Parcelable;
 /**
  * Created by angcyo on 16-01-27-027.
  */
-public class DeliveryserviceBean implements Parcelable{
+public class DeliveryserviceBean implements Parcelable {
+    public static final Creator<DeliveryserviceBean> CREATOR = new Creator<DeliveryserviceBean>() {
+        public DeliveryserviceBean createFromParcel(Parcel source) {
+            return new DeliveryserviceBean(source);
+        }
+
+        public DeliveryserviceBean[] newArray(int size) {
+            return new DeliveryserviceBean[size];
+        }
+    };
+    public boolean isAccept = false;//是否已接单
+    public boolean isTake = false;//是否已取货
     //select * from dbo.get_tradingarea_order_seller(50) where  status=0 and dt_create>='2015-11-16 12:00'
     //返回的值
     int sid;//订单sid
@@ -17,12 +28,26 @@ public class DeliveryserviceBean implements Parcelable{
     String caption;//商家
     String address;//目标地址
     String ec_caption;//平台信息
-
-    public boolean isAccept = false;//是否已接单
-    public boolean isTake = false;//是否已取货
-
     String phone;//消费者手机号码
     String name;//消费者姓名
+
+    public DeliveryserviceBean() {
+    }
+
+    protected DeliveryserviceBean(Parcel in) {
+        this.sid = in.readInt();
+        this.seller_order_identifier = in.readString();
+        this.status = in.readInt();
+        this.comment = in.readString();
+        this.dt_create = in.readString();
+        this.caption = in.readString();
+        this.address = in.readString();
+        this.ec_caption = in.readString();
+        this.isAccept = in.readByte() != 0;
+        this.isTake = in.readByte() != 0;
+        this.phone = in.readString();
+        this.name = in.readString();
+    }
 
     public String getName() {
         return name;
@@ -110,12 +135,19 @@ public class DeliveryserviceBean implements Parcelable{
         return this;
     }
 
-    public DeliveryserviceBean() {
-    }
-
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        DeliveryserviceBean bean = (DeliveryserviceBean) o;
+        if (this.getSeller_order_identifier().equalsIgnoreCase(bean.getSeller_order_identifier()) &&
+                this.getStatus() == bean.getStatus() && this.getDt_create().equalsIgnoreCase(bean.getDt_create())) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -133,29 +165,4 @@ public class DeliveryserviceBean implements Parcelable{
         dest.writeString(this.phone);
         dest.writeString(this.name);
     }
-
-    protected DeliveryserviceBean(Parcel in) {
-        this.sid = in.readInt();
-        this.seller_order_identifier = in.readString();
-        this.status = in.readInt();
-        this.comment = in.readString();
-        this.dt_create = in.readString();
-        this.caption = in.readString();
-        this.address = in.readString();
-        this.ec_caption = in.readString();
-        this.isAccept = in.readByte() != 0;
-        this.isTake = in.readByte() != 0;
-        this.phone = in.readString();
-        this.name = in.readString();
-    }
-
-    public static final Creator<DeliveryserviceBean> CREATOR = new Creator<DeliveryserviceBean>() {
-        public DeliveryserviceBean createFromParcel(Parcel source) {
-            return new DeliveryserviceBean(source);
-        }
-
-        public DeliveryserviceBean[] newArray(int size) {
-            return new DeliveryserviceBean[size];
-        }
-    };
 }
