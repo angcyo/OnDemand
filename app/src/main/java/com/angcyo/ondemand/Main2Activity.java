@@ -29,6 +29,7 @@ import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
 import com.angcyo.ondemand.view.CirclePathButton;
+import com.angcyo.ondemand.view.SparseExitFragment;
 import com.orhanobut.hawk.Hawk;
 
 import java.util.ArrayList;
@@ -247,7 +248,7 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
     @Override
     public void onBackPressed() {
         if (progressFragment == null) {
-            super.onBackPressed();
+            SparseExitFragment.show(this);
         } else {
             hideDialogTip();
         }
@@ -272,7 +273,7 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
             public void run() {
                 if (Util.isNetOk(Main2Activity.this)) {
                     EventDeliveryservice event = new EventDeliveryservice();
-                    ArrayList<DeliveryserviceBean> been = RTableControl.getAllDeliveryservice2();
+                    ArrayList<DeliveryserviceBean> been = RTableControl.getAllDeliveryservice2(OdApplication.userInfo.member.getSid());
                     if (been.size() == 0) {
                         event.isSucceed = false;
                     } else {
@@ -322,6 +323,10 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void onEvent(SparseExitFragment.ExitEvent event) {
+        super.onBackPressed();
+    }
 
     /**
      * 订单item布局 adapter

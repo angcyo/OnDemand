@@ -31,8 +31,8 @@ import me.drakeet.materialdialog.MaterialDialog;
 public abstract class BaseActivity extends AppCompatActivity {
 
     public static Handler handler;
-    protected ProgressFragment progressFragment = null;
-    protected MaterialDialog mMaterialDialog;
+    public ProgressFragment progressFragment = null;
+    public MaterialDialog mMaterialDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

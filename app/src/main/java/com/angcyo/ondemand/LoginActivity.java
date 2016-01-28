@@ -177,13 +177,6 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
         super.initViewData();
         remember.setChecked(Hawk.get(KEY_REMEMBER_PW, true));
         show.setChecked(Hawk.get(KEY_SHOW_PW, false));
-
-        RWorkService.addTask(new RWorkThread.TaskRunnable() {
-            @Override
-            public void run() {
-                RTableControl.getAllDeliveryservice2();
-            }
-        });
     }
 
     @OnClick(R.id.login)

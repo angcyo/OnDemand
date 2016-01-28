@@ -576,7 +576,18 @@ public class RTableControl {
     /**
      * 获取配送员和商圈都相同,切状态为0,今天的订单
      */
-    public static ArrayList<DeliveryserviceBean> getAllDeliveryservice2() {
+    public static ArrayList<DeliveryserviceBean> getAllDeliveryservice2(int memberSid) {
+        return getAllDeliveryserviceInfo(memberSid, 0, Util.getDate());
+    }
+
+    /**
+     * 获取配送员和商圈都相同, 获取time 之后所有完成的订单
+     */
+    public static ArrayList<DeliveryserviceBean> getAllDeliveryserviceFinish(int memberSid, String time) {
+        return getAllDeliveryserviceInfo(memberSid, 9, time);
+    }
+
+    public static ArrayList<DeliveryserviceBean> getAllDeliveryserviceInfo(int memberSid, int state, String time) {
         //select * from dbo.get_tradingarea_order_seller(50) where  status=0 and dt_create>='2015-11-16 12:00'
         ArrayList<DeliveryserviceBean> beans = new ArrayList<>();
         Connection connection;
@@ -584,8 +595,8 @@ public class RTableControl {
         try {
             connection = getDb();
             Statement statement = connection.createStatement();
-            String rawSql = "select * from dbo.get_tradingarea_order_seller(50) where  status=0 and dt_create>='%s'";
-            String queryString = String.format(rawSql, Util.getDate());
+            String rawSql = "select * from dbo.get_tradingarea_order_seller(%d) where  status=%d and dt_create>='%s'";
+            String queryString = String.format(rawSql, memberSid, state, time);
             ResultSet rs = statement.executeQuery(queryString);
             while (rs.next()) {
                 data = new DeliveryserviceBean();
@@ -607,7 +618,6 @@ public class RTableControl {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
         return beans;
     }
 }

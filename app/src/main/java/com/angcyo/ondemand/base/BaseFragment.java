@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.angcyo.ondemand.util.Util;
+import com.angcyo.ondemand.view.ProgressFragment;
 import com.orhanobut.logger.Logger;
 
 import butterknife.ButterKnife;
@@ -25,11 +26,13 @@ public abstract class BaseFragment extends Fragment {
 
     protected BaseActivity mBaseActivity;
     protected View rootView;
+    protected boolean isCreate = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadData(savedInstanceState);
+        isCreate = true;
     }
 
     @Nullable
@@ -99,6 +102,32 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        isCreate = false;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isCreate) {
+            if (isVisibleToUser) {
+                onShow();
+            } else {
+                onHide();
+            }
+        }
+    }
+
+    protected void onShow(){
+
+    }
+
+    protected void onHide(){
+
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
@@ -109,6 +138,31 @@ public abstract class BaseFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mBaseActivity = (BaseActivity) context;
+    }
+
+    public void showDialogTip(String tip) {
+        if (mBaseActivity.progressFragment != null) {
+            mBaseActivity.progressFragment.updateText(tip);
+            return;
+        }
+        mBaseActivity.progressFragment = ProgressFragment.newInstance(tip);
+        mBaseActivity.progressFragment.show(mBaseActivity.getSupportFragmentManager(), "dialog_tip");
+    }
+
+    public void showDialogTip(String tip, boolean cancel) {
+        if (mBaseActivity.progressFragment != null) {
+            mBaseActivity.progressFragment.updateText(tip);
+            return;
+        }
+        mBaseActivity.progressFragment = ProgressFragment.newInstance(tip);
+        mBaseActivity.progressFragment.show(mBaseActivity.getSupportFragmentManager(), "dialog_tip");
+    }
+
+    public void hideDialogTip() {
+        if (mBaseActivity.progressFragment != null) {
+            mBaseActivity.progressFragment.dismiss();
+            mBaseActivity.progressFragment = null;
+        }
     }
 
     @Override
