@@ -3,6 +3,7 @@ package com.angcyo.ondemand;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,21 +41,27 @@ import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
 
-public class Main2Activity extends BaseActivity {
+public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     boolean isFirst = true;
     @Bind(R.id.oddnum_list)
     RecyclerView oddnumList;
     @Bind(R.id.button)
     Button button;
+    @Bind(R.id.refresh)
+    SwipeRefreshLayout refresh;
     OddAdapter oddAdapter;
     private boolean isSendSms = false;
     private boolean needLaunch = false;
     private ArrayList<DeliveryserviceBean> oldBeans;
 
     @Override
+    protected int getContentView() {
+        return R.layout.activity_main2;
+    }
+
+    @Override
     protected void initView(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_main2);
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
 
@@ -70,6 +77,9 @@ public class Main2Activity extends BaseActivity {
 
         oddAdapter = new OddAdapter(this);
         oddnumList.setAdapter(oddAdapter);
+
+        refresh.setOnRefreshListener(this);
+        refresh.setColorScheme(getResources().getColor(R.color.colorAccent));
     }
 
     @OnClick(R.id.button)
@@ -77,12 +87,12 @@ public class Main2Activity extends BaseActivity {
         needLaunch = true;
 
         if (oddAdapter.netCommandCount.get() == 0) {
+            needLaunch = false;
             hideDialogTip();
-
             ArrayList<DeliveryserviceBean> allAcceptOddnum = oddAdapter.getAllAcceptOddnum();
             final ArrayList<DeliveryserviceBean> allTakeOddnum = oddAdapter.getAllTakeOddnum();
             if (allAcceptOddnum.size() > allTakeOddnum.size() && allTakeOddnum.size() > 0) {
-                showMaterialDialog("提示", "你还有未取货的订单, 是否放弃订单?", new View.OnClickListener() {
+                showMaterialDialog("提示", "你还有未取货的订单, 是否继续?", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         mMaterialDialog.dismiss();
@@ -102,7 +112,7 @@ public class Main2Activity extends BaseActivity {
                 launchDetailActivity(allTakeOddnum);
             }
         } else {
-            showDialogTip("请等待...");
+            showDialogTip("请等待...", true);
         }
 
 //        notifyWidthSms(allTakeOddnum);
@@ -112,6 +122,7 @@ public class Main2Activity extends BaseActivity {
      * 启动订单跟踪界面
      */
     private void launchDetailActivity(ArrayList<DeliveryserviceBean> allTakeOddnum) {
+        isFirst = true;
         DetailActivity.launch(this, allTakeOddnum);
     }
 
@@ -174,7 +185,11 @@ public class Main2Activity extends BaseActivity {
             return true;
         }
         if (id == R.id.refresh) {
-            onRefresh();
+            onRefreshData();
+            return true;
+        }
+        if (id == R.id.action_center) {//个人中心
+            CenterActivity.launch(this);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -183,7 +198,7 @@ public class Main2Activity extends BaseActivity {
     /**
      * 刷新订单列表,首先判断之前修改状态的订单是否已完成,再追加新增的订单
      */
-    private void onRefresh() {
+    private void onRefreshData() {
         showDialogTip("刷新订单中....");
         final ArrayList<DeliveryserviceBean> allAcceptOddnum = oddAdapter.getAllAcceptOddnum();
         RWorkService.addTask(new RWorkThread.TaskRunnable() {
@@ -211,7 +226,8 @@ public class Main2Activity extends BaseActivity {
     public void onEvent(EventRefresh event) {
         if (event.isSucceed) {
             oddAdapter.resetData(event.beans);
-            oldBeans = event.beans;
+            oldBeans = new ArrayList<>();
+            oldBeans.addAll(event.beans);
             setTitle("接单中:" + OdApplication.userInfo.member.getName_real() + "(" + event.beans.size() + ")");
             loadDeliveryservice();
         }
@@ -242,7 +258,7 @@ public class Main2Activity extends BaseActivity {
         super.onPostResume();
         if (isFirst) {
             isFirst = false;
-            loadDeliveryservice();
+            onRefreshData();
         }
     }
 
@@ -274,6 +290,7 @@ public class Main2Activity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEvent(EventDeliveryservice event) {
         hideDialogTip();
+        refresh.setRefreshing(false);
         if (event.isSucceed) {
             oddAdapter.appendData(event.beans);
             int oldSize = 0;
@@ -295,6 +312,13 @@ public class Main2Activity extends BaseActivity {
 
         if (needLaunch) {
             onOk();
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        if (!refresh.isRefreshing()) {
+            onRefreshData();
         }
     }
 
@@ -340,6 +364,7 @@ public class Main2Activity extends BaseActivity {
                         PopupTipWindow.showTip(mContext, "已取货订单,不允许此操作!");
                         acceptButton.setSelected(true);
                     } else {
+                        netCommandCount.addAndGet(1);
                         acceptOddnum(String.valueOf(bean.getSeller_order_identifier()), isSelect, position);
                     }
                     bean.isAccept = acceptButton.isSelected();
@@ -352,6 +377,7 @@ public class Main2Activity extends BaseActivity {
                         PopupTipWindow.showTip(mContext, "请先取单!");
                         takeButton.setSelected(false);
                     } else {
+                        netCommandCount.addAndGet(1);
                         takeOddnum(String.valueOf(bean.getSeller_order_identifier()), isSelect, position);
                     }
                     bean.isTake = takeButton.isSelected();
@@ -376,7 +402,6 @@ public class Main2Activity extends BaseActivity {
                             eventAcceptOddnum.state = 0;
                         }
                         eventAcceptOddnum.isSucceed = true;
-                        netCommandCount.addAndGet(1);
                         EventBus.getDefault().post(eventAcceptOddnum);
                     } catch (Exception e) {
                         EventBus.getDefault().post(new EventAcceptOddnum(position, false));
@@ -401,7 +426,6 @@ public class Main2Activity extends BaseActivity {
                             RTableControl.updateOddnumState(seller_order_identifier, 1);
                             eventTakeOddnum.state = 1;
                         }
-                        netCommandCount.addAndGet(1);
                         eventTakeOddnum.isSucceed = true;
                         EventBus.getDefault().post(eventTakeOddnum);
                     } catch (Exception e) {

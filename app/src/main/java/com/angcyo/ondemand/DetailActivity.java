@@ -110,6 +110,11 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
     }
 
     @Override
+    protected int getContentView() {
+        return R.layout.activity_detail;
+    }
+
+    @Override
     protected void initBefore() {
         super.initBefore();
         allTakeOddnum = getIntent().getExtras().getParcelableArrayList(KEY_ODDNUM);
@@ -117,13 +122,12 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
 
     @Override
     protected void initView(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_detail);
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
         setSupportActionBar(toolbar);
         initWindow(R.color.colorAccent);
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
-        setTitle("订单跟踪中");
+        setTitle("订单跟踪中:(" + allTakeOddnum.size() + ")");
 
         // 数据列表
         oddnumList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));

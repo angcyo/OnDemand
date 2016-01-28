@@ -15,7 +15,7 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.2">
+            android:layout_weight="0.3">
 
             <TextView
                 android:id="@+id/platform"
@@ -39,7 +39,7 @@
             android:id="@+id/oddnum"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5"
+            android:layout_weight="0.4"
             tools:text="订单号" />
 
         <LinearLayout

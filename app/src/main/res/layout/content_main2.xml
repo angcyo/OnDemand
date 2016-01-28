@@ -41,26 +41,32 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="已接单"
                 android:layout_marginRight="5dp"
+                android:text="已接单"
                 android:textColor="@color/colorAccent"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
                 android:gravity="center"
                 android:text="已取货"
-                android:layout_marginRight="5dp"
                 android:textColor="@color/red_dark"/>
 
         </LinearLayout>
 
-        <!--订单列表-->
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/oddnum_list"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/refresh"
             android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:layout_height="0dp"/>
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <!--订单列表-->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/oddnum_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </android.support.v4.widget.SwipeRefreshLayout>
+
 
         <!--配送按钮-->
         <com.angcyo.ondemand.view.PathButton
@@ -71,7 +77,7 @@
             android:background="@null"
             android:text="开始派送"
             android:textColor="@color/colorAccent"
-            app:pathWidth="2dp"
-            app:pathColor="@color/colorAccent"/>
+            app:pathColor="@color/colorAccent"
+            app:pathWidth="2dp"/>
     </LinearLayout>
 </RelativeLayout>

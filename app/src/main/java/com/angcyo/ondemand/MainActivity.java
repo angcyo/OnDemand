@@ -107,6 +107,11 @@ public class MainActivity extends BaseActivity {
     private Runnable autoRefreshRunnable;//自动刷新
 
     @Override
+    protected int getContentView() {
+        return R.layout.activity_main;
+    }
+
+    @Override
     protected void initBefore() {
         super.initBefore();
         autoRefreshRunnable = new Runnable() {
@@ -128,7 +133,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initView(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         initWindow(R.color.colorAccent);

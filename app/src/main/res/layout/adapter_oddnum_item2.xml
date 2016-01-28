@@ -23,6 +23,8 @@
                 android:id="@+id/platform"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:textSize="16sp"
                 tools:text="商圈" />
 
@@ -33,6 +35,8 @@
                 android:layout_below="@id/platform"
                 android:textSize="12sp"
                 android:textColor="#a3a3a3"
+                android:singleLine="true"
+                android:ellipsize="end"
                 tools:text="饿了么" />
         </RelativeLayout>
 

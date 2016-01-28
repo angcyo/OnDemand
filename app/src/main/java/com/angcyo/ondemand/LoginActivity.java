@@ -96,7 +96,6 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
 
     @Override
     protected void initView(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
         setSupportActionBar(toolbar);
@@ -127,6 +126,11 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
             launchActivity(Main2Activity.class);
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected int getContentView() {
+        return R.layout.activity_login;
     }
 
     @Override

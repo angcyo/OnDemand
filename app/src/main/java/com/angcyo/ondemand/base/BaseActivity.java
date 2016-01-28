@@ -39,6 +39,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         init();
         initBefore();
         super.onCreate(savedInstanceState);
+        setContentView(getContentView());
         initView(savedInstanceState);
         initAfter();
         initEvent();
@@ -46,6 +47,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         initWindowAnim();
     }
+
+    protected abstract int getContentView();
 
     //设置窗口动画
     private void initWindowAnim() {
@@ -96,6 +99,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void showDialogTip(String tip) {
+        if (progressFragment != null) {
+            progressFragment.updateText(tip);
+            return;
+        }
+        progressFragment = ProgressFragment.newInstance(tip);
+        progressFragment.show(getSupportFragmentManager(), "dialog_tip");
+    }
+
+    public void showDialogTip(String tip, boolean cancel) {
         if (progressFragment != null) {
             progressFragment.updateText(tip);
             return;
@@ -176,8 +188,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .setNegativeButton("取消", negativeListener)
                 .setOnDismissListener(onDismissListener);
         mMaterialDialog.setCanceledOnTouchOutside(false);
+        mMaterialDialog.show();
         try {
-            Field mPositiveButton = mMaterialDialog.getClass().getField("mPositiveButton");
+            Field mPositiveButton = mMaterialDialog.getClass().getDeclaredField("mPositiveButton");
             mPositiveButton.setAccessible(true);
             ((Button) mPositiveButton.get(mMaterialDialog)).setTextColor(getResources().getColor(R.color.colorAccent));
         } catch (NoSuchFieldException e) {
@@ -185,8 +198,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
-        mMaterialDialog.show();
     }
 
     @Override
