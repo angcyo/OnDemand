@@ -24,7 +24,7 @@ import me.drakeet.materialdialog.MaterialDialog;
 public abstract class BaseFragment extends Fragment {
 
     protected BaseActivity mBaseActivity;
-
+    protected View rootView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,10 +35,10 @@ public abstract class BaseFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = loadView(inflater, container, savedInstanceState);
-        initView(view);
+        rootView = loadView(inflater, container, savedInstanceState);
+        initView(rootView);
         initAfter();
-        return view;
+        return rootView;
     }
 
     protected abstract void loadData(Bundle savedInstanceState);

@@ -79,7 +79,7 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
         oddnumList.setAdapter(oddAdapter);
 
         refresh.setOnRefreshListener(this);
-        refresh.setColorScheme(getResources().getColor(R.color.colorAccent));
+        refresh.setColorSchemeResources(R.color.colorAccent);
     }
 
     @OnClick(R.id.button)
@@ -317,7 +317,7 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
 
     @Override
     public void onRefresh() {
-        if (!refresh.isRefreshing()) {
+        if (refresh.isRefreshing()) {
             onRefreshData();
         }
     }
