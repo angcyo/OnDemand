@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import com.angcyo.ondemand.Main2Activity;
 import com.angcyo.ondemand.OdApplication;
 import com.angcyo.ondemand.R;
+import com.angcyo.ondemand.base.BaseFragment;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;

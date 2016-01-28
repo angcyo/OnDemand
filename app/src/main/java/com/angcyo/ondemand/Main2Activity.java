@@ -1,29 +1,36 @@
 package com.angcyo.ondemand;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
+import com.angcyo.ondemand.base.BaseActivity;
 import com.angcyo.ondemand.base.RBaseAdapter;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;
+import com.angcyo.ondemand.event.EventAcceptOddnum;
 import com.angcyo.ondemand.event.EventDeliveryservice;
 import com.angcyo.ondemand.event.EventNoNet;
+import com.angcyo.ondemand.event.EventTakeOddnum;
 import com.angcyo.ondemand.model.DeliveryserviceBean;
+import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
 import com.angcyo.ondemand.view.CirclePathButton;
 import com.orhanobut.hawk.Hawk;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -37,7 +44,11 @@ public class Main2Activity extends BaseActivity {
     boolean isFirst = true;
     @Bind(R.id.oddnum_list)
     RecyclerView oddnumList;
+    @Bind(R.id.button)
+    Button button;
     OddAdapter oddAdapter;
+    private boolean isSendSms = false;
+    private boolean needLaunch = false;
 
     @Override
     protected void initView(Bundle savedInstanceState) {
@@ -61,36 +72,87 @@ public class Main2Activity extends BaseActivity {
 
     @OnClick(R.id.button)
     public void onOk() {
-//        if (oddnums.size() < 1) {
-//            PopupTipWindow.showTip(this, "未添加配送单号");
-//            return;
-//        }
-//        showDialogTip("准备派送,请等待...");
-//        RWorkService.addTask(new RWorkThread.TaskRunnable() {
-//            @Override
-//            public void run() {
-//                if (Util.isNetOk(MainActivity.this)) {
-//                    for (OddnumBean bean : oddnums) {
-//                        try {
-////                            RTableControl.executeOddnum(bean.oddnum, bean.platformId, bean.sid_seller, bean.sid_customer, bean.memberId, bean.status);//不创建订单
-////                            RTableControl.updateOddnumState(bean.oddnum, 1);//更新订单状态//订单状态（0待命 1锁单 2派送中 3派送丢失 4客户拒收 9客户已收）
-//                            RTableControl.updateOddnum(bean.memberId, 1, bean.sid);
-//                        } catch (SQLException e) {
-//                            e.printStackTrace();
-//                            EventBus.getDefault().post(new EventException());
-//                            return;
-//                        } catch (ClassNotFoundException e) {
-//                            e.printStackTrace();
-//                            EventBus.getDefault().post(new EventException());
-//                            return;
-//                        }
-//                    }
-//                    EventBus.getDefault().post(new EventOddnumOk());
-//                } else {
-//                    EventBus.getDefault().post(new EventNoNet());
-//                }
-//            }
-//        });
+        needLaunch = true;
+
+        if (oddAdapter.netCommandCount.get() == 0) {
+            hideDialogTip();
+
+            ArrayList<DeliveryserviceBean> allAcceptOddnum = oddAdapter.getAllAcceptOddnum();
+            final ArrayList<DeliveryserviceBean> allTakeOddnum = oddAdapter.getAllTakeOddnum();
+            if (allAcceptOddnum.size() > allTakeOddnum.size() && allTakeOddnum.size() > 0) {
+                showMaterialDialog("提示", "你还有未取货的订单, 是否放弃订单?", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mMaterialDialog.dismiss();
+                        launchDetailActivity(allTakeOddnum);
+                    }
+                }, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mMaterialDialog.dismiss();
+                        return;
+                    }
+                }, null);
+            } else if (allAcceptOddnum.size() == 0 || allTakeOddnum.size() == 0) {
+                PopupTipWindow.showTip(this, "没有订单需要配送");
+                return;
+            } else {
+                launchDetailActivity(allTakeOddnum);
+            }
+        } else {
+            showDialogTip("请等待...");
+        }
+
+//        notifyWidthSms(allTakeOddnum);
+    }
+
+    /**
+     * 启动订单跟踪界面
+     */
+    private void launchDetailActivity(ArrayList<DeliveryserviceBean> allTakeOddnum) {
+        DetailActivity.launch(this, allTakeOddnum);
+    }
+
+    /**
+     * 短信通知
+     */
+    private void notifyWidthSms(ArrayList<DeliveryserviceBean> allTakeOddnum) {
+        //短信提醒
+        final StringBuffer phones = new StringBuffer();
+        String phone, sellerCaption = "--";////商户名称
+        for (DeliveryserviceBean odd : allTakeOddnum) {
+            phone = odd.getPhone();
+            if (!TextUtils.isEmpty(phone)) {
+                phones.append(phone + ";");
+            }
+            sellerCaption = odd.getCaption();//商户名称
+        }
+        final String content = String.format("昂递科技提醒:\n您好，你刚才在 %s 预订的外卖由我(%s)正在火速配送中，\n联系方式：%s，请稍等，谢谢!",
+                sellerCaption, OdApplication.userInfo.member.getName_real(), OdApplication.userInfo.member.getPhone());
+
+        phone = phones.toString();
+        if (TextUtils.isEmpty(phone)) {
+            launchActivity(DetailActivity.class);
+        } else {
+            showMaterialDialog("发送至:" + phone, content + "\n\n是否,发短信通知?", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PhoneUtil.sendSMSTo(Main2Activity.this, phones.toString(), content);
+                    isSendSms = true;
+                }
+            }, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    isSendSms = false;
+                    mMaterialDialog.dismiss();
+                }
+            }, new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    launchActivity(DetailActivity.class);
+                }
+            });
+        }
     }
 
     @Override
@@ -114,6 +176,26 @@ public class Main2Activity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isSendSms) {
+            if (mMaterialDialog != null) {
+                isSendSms = false;
+                mMaterialDialog.dismiss();
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (progressFragment == null) {
+            super.onBackPressed();
+        } else {
+            hideDialogTip();
+        }
     }
 
     @Override
@@ -155,17 +237,40 @@ public class Main2Activity extends BaseActivity {
         hideDialogTip();
         if (event.isSucceed) {
             oddAdapter.resetData(event.beans);
+            setTitle("接单中:" + OdApplication.userInfo.member.getName_real() + "(" + event.beans.size() + ")");
         }
     }
 
+    public void updateButtonUi() {
+        int acceptSize = oddAdapter.nickAcceptBeans.size();
+        int takeSize = oddAdapter.nickTakeBeans.size();
+        if (acceptSize == 0 && takeSize == 0) {
+            button.setText("开始派送");
+        } else {
+            button.setText("开始派送-->" + "取单(" + acceptSize + ")" + " 取货(" + takeSize + ")");
+        }
+
+        if (needLaunch) {
+            onOk();
+        }
+    }
+
+
+    /**
+     * 订单item布局 adapter
+     */
     public static class OddAdapter extends RBaseAdapter<DeliveryserviceBean> {
+
+        public ArrayList<DeliveryserviceBean> nickAcceptBeans;//保存网络请求生效的取单订单
+        public ArrayList<DeliveryserviceBean> nickTakeBeans;//保存网络请求生效的取货订单
+        public AtomicInteger netCommandCount;//网络请求操作的次数,当大于零时,所有请求处理完成
 
         public OddAdapter(Context context) {
             super(context);
-        }
-
-        public OddAdapter(Context context, List<DeliveryserviceBean> datas) {
-            super(context, datas);
+            nickAcceptBeans = new ArrayList<>();
+            nickTakeBeans = new ArrayList<>();
+            netCommandCount = new AtomicInteger();
+            EventBus.getDefault().register(this);
         }
 
         @Override
@@ -174,7 +279,7 @@ public class Main2Activity extends BaseActivity {
         }
 
         @Override
-        protected void onBindView(RBaseViewHolder holder, int position, final DeliveryserviceBean bean) {
+        protected void onBindView(RBaseViewHolder holder, final int position, final DeliveryserviceBean bean) {
             holder.tV(R.id.platform).setText(bean.getCaption() + "");
             holder.tV(R.id.oddnum).setText(bean.getSeller_order_identifier() + "");
             holder.tV(R.id.ec_platform).setText(bean.getEc_caption() + "");
@@ -191,6 +296,8 @@ public class Main2Activity extends BaseActivity {
                     if (bean.isTake && !isSelect) {//已取货,不允许取消订单
                         PopupTipWindow.showTip(mContext, "已取货订单,不允许此操作!");
                         acceptButton.setSelected(true);
+                    } else {
+                        acceptOddnum(String.valueOf(bean.getSeller_order_identifier()), isSelect, position);
                     }
                     bean.isAccept = acceptButton.isSelected();
                 }
@@ -201,12 +308,106 @@ public class Main2Activity extends BaseActivity {
                     if (!bean.isAccept && isSelect) {//未取单,就取货
                         PopupTipWindow.showTip(mContext, "请先取单!");
                         takeButton.setSelected(false);
+                    } else {
+                        takeOddnum(String.valueOf(bean.getSeller_order_identifier()), isSelect, position);
                     }
                     bean.isTake = takeButton.isSelected();
                 }
             });
+        }
 
+        /**
+         * 取单
+         */
+        private void acceptOddnum(final String seller_order_identifier, final boolean isAccept, final int position) {
+            RWorkService.addTask(new RWorkThread.TaskRunnable() {
+                @Override
+                public void run() {
+                    try {
+                        netCommandCount.addAndGet(1);
+                        if (isAccept) {
+                            RTableControl.updateOddnumState(seller_order_identifier, 1);
+                            EventBus.getDefault().post(new EventAcceptOddnum(position, true));
+                        } else {
+                            RTableControl.updateOddnumState(seller_order_identifier, 0);
+                        }
+                    } catch (Exception e) {
+                        EventBus.getDefault().post(new EventAcceptOddnum(position, false));
+                    }
+                }
+            });
+        }
 
+        /**
+         * 取货
+         */
+        private void takeOddnum(final String seller_order_identifier, final boolean isTake, final int position) {
+            RWorkService.addTask(new RWorkThread.TaskRunnable() {
+                @Override
+                public void run() {
+                    try {
+                        netCommandCount.addAndGet(1);
+                        if (isTake) {
+                            RTableControl.updateOddnumState(seller_order_identifier, 2);
+                            EventBus.getDefault().post(new EventTakeOddnum(position, true));
+                        } else {
+                            RTableControl.updateOddnumState(seller_order_identifier, 1);
+                        }
+                    } catch (Exception e) {
+                        EventBus.getDefault().post(new EventTakeOddnum(position, false));
+                    }
+                }
+            });
+        }
+
+        @Subscribe(threadMode = ThreadMode.MainThread)
+        public void onEvent(EventAcceptOddnum event) {
+            netCommandCount.decrementAndGet();
+            if (!event.isSucceed) {
+                mAllDatas.get(event.position).isAccept = false;
+                notifyItemChanged(event.position);
+            } else {
+                nickAcceptBeans.add(mAllDatas.get(event.position));
+            }
+            ((Main2Activity) mContext).updateButtonUi();
+        }
+
+        @Subscribe(threadMode = ThreadMode.MainThread)
+        public void onEvent(EventTakeOddnum event) {
+            netCommandCount.decrementAndGet();
+            if (!event.isSucceed) {
+                mAllDatas.get(event.position).isTake = false;
+                notifyItemChanged(event.position);
+            } else {
+                nickTakeBeans.add(mAllDatas.get(event.position));
+            }
+            ((Main2Activity) mContext).updateButtonUi();
+        }
+
+        /**
+         * 返回所有已取单的单号
+         */
+        public ArrayList<DeliveryserviceBean> getAllAcceptOddnum() {
+            ArrayList<DeliveryserviceBean> beans = new ArrayList<>();
+            for (DeliveryserviceBean bean : mAllDatas) {
+                if (bean.isAccept) {
+                    beans.add(bean);
+                }
+            }
+            return beans;
+        }
+
+        /**
+         * 返回所有已取货的单号
+         */
+        public ArrayList<DeliveryserviceBean> getAllTakeOddnum() {
+            ArrayList<DeliveryserviceBean> beans = new ArrayList<>();
+            for (DeliveryserviceBean bean : mAllDatas) {
+                if (bean.isAccept && bean.isTake) {
+                    beans.add(bean);
+                }
+            }
+            return beans;
         }
     }
 }

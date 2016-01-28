@@ -363,8 +363,9 @@ public class RTableControl {
         Connection connection;
         connection = getDb();
         Statement statement = connection.createStatement();
-        String queryString = String.format("UPDATE order_deliveryservice set status = %d , dt_end = '%s' WHERE seller_order_identifier = '%s'",
-                status, Util.getDateAndTime(), seller_order_identifier);
+        String queryString = String.format("UPDATE order_deliveryservice set status = %d , dt_end = '%s' " +
+                "WHERE seller_order_identifier = '%s' and dt_create>='%s'",
+                status, Util.getDateAndTime(), seller_order_identifier, Util.getDate());
         statement.executeUpdate(queryString);
         connection.close();
     }
@@ -572,6 +573,8 @@ public class RTableControl {
                 data.setCaption(rs.getString(6));
                 data.setAddress(rs.getString(7));
                 data.setEc_caption(rs.getString(8));
+                data.setName(rs.getString(9));
+                data.setPhone(rs.getString(10));
                 beans.add(data);
             }
             connection.close();

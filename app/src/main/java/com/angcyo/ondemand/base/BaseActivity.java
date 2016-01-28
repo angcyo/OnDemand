@@ -1,6 +1,7 @@
-package com.angcyo.ondemand;
+package com.angcyo.ondemand.base;
 
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,22 +9,30 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.ColorRes;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 
+import com.angcyo.ondemand.OdApplication;
+import com.angcyo.ondemand.R;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.view.ProgressFragment;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
+import java.lang.reflect.Field;
+
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
+import me.drakeet.materialdialog.MaterialDialog;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
     public static Handler handler;
-    private ProgressFragment progressFragment = null;
+    protected ProgressFragment progressFragment = null;
+    protected MaterialDialog mMaterialDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +96,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void showDialogTip(String tip) {
+        if (progressFragment != null) {
+            return;
+        }
         progressFragment = ProgressFragment.newInstance(tip);
         progressFragment.show(getSupportFragmentManager(), "dialog_tip");
     }
@@ -151,6 +163,29 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected OdApplication getApp() {
         return ((OdApplication) getApplication());
+    }
+
+    protected void showMaterialDialog(String title, String message,
+                                final View.OnClickListener positiveListener, final View.OnClickListener negativeListener,
+                                DialogInterface.OnDismissListener onDismissListener) {
+        mMaterialDialog = new MaterialDialog(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("确认", positiveListener)
+                .setNegativeButton("取消", negativeListener)
+                .setOnDismissListener(onDismissListener);
+        mMaterialDialog.setCanceledOnTouchOutside(false);
+        try {
+            Field mPositiveButton = mMaterialDialog.getClass().getField("mPositiveButton");
+            mPositiveButton.setAccessible(true);
+            ((Button) mPositiveButton.get(mMaterialDialog)).setTextColor(getResources().getColor(R.color.colorAccent));
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        mMaterialDialog.show();
     }
 
     @Override

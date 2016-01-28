@@ -1,7 +1,8 @@
-package com.angcyo.ondemand.view;
+package com.angcyo.ondemand.base;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,12 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.angcyo.ondemand.BaseActivity;
 import com.angcyo.ondemand.util.Util;
 import com.orhanobut.logger.Logger;
 
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
+import me.drakeet.materialdialog.MaterialDialog;
 
 /**
  * Created by angcyo on 15-08-31-031.
@@ -85,6 +86,17 @@ public abstract class BaseFragment extends Fragment {
         Logger.e(Util.callClassMethodName());
     }
 
+    protected void showMaterialDialog(String title, String message,
+                                      final View.OnClickListener positiveListener, final View.OnClickListener negativeListener,
+                                      DialogInterface.OnDismissListener onDismissListener) {
+        MaterialDialog mMaterialDialog = new MaterialDialog(mBaseActivity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("确认", positiveListener)
+                .setNegativeButton("取消", negativeListener)
+                .setOnDismissListener(onDismissListener);
+        mMaterialDialog.show();
+    }
 
     @Override
     public void onDestroyView() {

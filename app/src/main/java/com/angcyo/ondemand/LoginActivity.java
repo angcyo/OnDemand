@@ -8,12 +8,15 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.angcyo.ondemand.base.BaseActivity;
 import com.angcyo.ondemand.components.RConstant;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
@@ -27,7 +30,7 @@ import com.angcyo.ondemand.model.UserInfo;
 import com.angcyo.ondemand.util.MD5;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
-import com.angcyo.ondemand.view.BaseFragment;
+import com.angcyo.ondemand.base.BaseFragment;
 import com.angcyo.ondemand.view.RegisterFragment;
 import com.orhanobut.hawk.Hawk;
 
@@ -70,6 +73,12 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
     AppCompatCheckBox remember;
     @Bind(R.id.show)
     AppCompatCheckBox show;
+    @Bind(R.id.logo_new)
+    ImageView logoNew;
+    @Bind(R.id.control_layout)
+    View controlLayout;
+
+    int controlLayoutHeight;//保存高度,用来检测键盘是否弹起
 
     /**
      * 判断是否是手机号码
@@ -105,10 +114,13 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
 
         cbUseSeller.setVisibility(View.GONE);
         company.setVisibility(View.GONE);
-//        if (OdApplication.userInfo != null) {
-//            launchActivity(MainActivity.class);
-//            super.onBackPressed();
-//        }
+
+        controlLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                controlLayoutHeight = controlLayout.getMeasuredHeight();
+            }
+        });
 
         //v2 版本修改
         if (OdApplication.userInfo != null && Hawk.get(KEY_REMEMBER_PW, false)) {
@@ -120,6 +132,8 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
     @Override
     protected void initEvent() {
         super.initEvent();
+        initSoftInput();
+
         phone.setOnLongClickListener(this);
         pw.setOnLongClickListener(this);
         company.setOnLongClickListener(this);
@@ -315,5 +329,26 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
             ((EditText) v).setText("");
         }
         return false;
+    }
+
+    /**
+     * 监听软键盘事件
+     */
+    private void initSoftInput() {
+        controlLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int height = controlLayout.getHeight();
+                if (height < controlLayoutHeight) {
+                    onSoftInputEvent(true);
+                } else {
+                    onSoftInputEvent(false);
+                }
+            }
+        });
+    }
+
+    private void onSoftInputEvent(boolean isShow) {
+        logoNew.setVisibility(isShow ? View.GONE : View.VISIBLE);
     }
 }

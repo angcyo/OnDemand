@@ -12,26 +12,35 @@
         android:orientation="horizontal"
         android:padding="5dp">
 
-        <TextView
-            android:id="@+id/platform"
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.2"
-            tools:text="美团网购" />
+            android:layout_weight="0.2">
+
+            <TextView
+                android:id="@+id/platform"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#a3a3a3"
+                android:textSize="12sp"
+                tools:text="美团网购" />
+
+            <TextView
+                android:id="@+id/customerPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/platform"
+                android:textSize="16sp"
+                tools:text="客户电话" />
+        </RelativeLayout>
+
 
         <TextView
             android:id="@+id/oddnum"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.2"
+            android:layout_weight="0.5"
             tools:text="订单号" />
-
-        <TextView
-            android:id="@+id/customerPhone"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            tools:text="客户电话" />
 
         <LinearLayout
             android:layout_width="0dp"

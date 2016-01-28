@@ -21,6 +21,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.angcyo.ondemand.base.BaseActivity;
 import com.angcyo.ondemand.components.RConstant;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;

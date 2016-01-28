@@ -1,9 +1,12 @@
 package com.angcyo.ondemand.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by angcyo on 16-01-27-027.
  */
-public class DeliveryserviceBean {
+public class DeliveryserviceBean implements Parcelable{
     //select * from dbo.get_tradingarea_order_seller(50) where  status=0 and dt_create>='2015-11-16 12:00'
     //返回的值
     int sid;//订单sid
@@ -18,6 +21,24 @@ public class DeliveryserviceBean {
     public boolean isAccept = false;//是否已接单
     public boolean isTake = false;//是否已取货
 
+    String phone;//消费者手机号码
+    String name;//消费者姓名
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
     public String getAddress() {
         return address;
@@ -88,4 +109,53 @@ public class DeliveryserviceBean {
         this.caption = caption;
         return this;
     }
+
+    public DeliveryserviceBean() {
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.sid);
+        dest.writeInt(this.seller_order_identifier);
+        dest.writeInt(this.status);
+        dest.writeString(this.comment);
+        dest.writeString(this.dt_create);
+        dest.writeString(this.caption);
+        dest.writeString(this.address);
+        dest.writeString(this.ec_caption);
+        dest.writeByte(isAccept ? (byte) 1 : (byte) 0);
+        dest.writeByte(isTake ? (byte) 1 : (byte) 0);
+        dest.writeString(this.phone);
+        dest.writeString(this.name);
+    }
+
+    protected DeliveryserviceBean(Parcel in) {
+        this.sid = in.readInt();
+        this.seller_order_identifier = in.readInt();
+        this.status = in.readInt();
+        this.comment = in.readString();
+        this.dt_create = in.readString();
+        this.caption = in.readString();
+        this.address = in.readString();
+        this.ec_caption = in.readString();
+        this.isAccept = in.readByte() != 0;
+        this.isTake = in.readByte() != 0;
+        this.phone = in.readString();
+        this.name = in.readString();
+    }
+
+    public static final Creator<DeliveryserviceBean> CREATOR = new Creator<DeliveryserviceBean>() {
+        public DeliveryserviceBean createFromParcel(Parcel source) {
+            return new DeliveryserviceBean(source);
+        }
+
+        public DeliveryserviceBean[] newArray(int size) {
+            return new DeliveryserviceBean[size];
+        }
+    };
 }

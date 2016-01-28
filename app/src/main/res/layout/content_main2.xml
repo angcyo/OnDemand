@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@null"
-            android:text="开始配送"
+            android:text="开始派送"
             android:textColor="@color/colorAccent"
             app:pathWidth="2dp"
             app:pathColor="@color/colorAccent"/>

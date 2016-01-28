@@ -68,6 +68,10 @@ public abstract class RBaseAdapter<T> extends RecyclerView.Adapter<RBaseAdapter.
         notifyDataSetChanged();
     }
 
+    public List<T> getAllDatas() {
+        return mAllDatas;
+    }
+
     /**
      * 通用ViewHolder
      */

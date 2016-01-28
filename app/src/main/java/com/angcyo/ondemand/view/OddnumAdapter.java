@@ -9,20 +9,19 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.angcyo.ondemand.BaseActivity;
 import com.angcyo.ondemand.R;
+import com.angcyo.ondemand.base.BaseActivity;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;
 import com.angcyo.ondemand.event.EventException;
 import com.angcyo.ondemand.event.EventNoNet;
-import com.angcyo.ondemand.model.OddnumBean;
+import com.angcyo.ondemand.model.DeliveryserviceBean;
 import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.Util;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -34,7 +33,7 @@ import me.drakeet.materialdialog.MaterialDialog;
  */
 public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder> {
 
-    List<OddnumBean> datas;
+    ArrayList<DeliveryserviceBean> datas;
     Context context;
     MaterialDialog mMaterialDialog;
 
@@ -43,7 +42,7 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
         datas = new ArrayList<>();
     }
 
-    public OddnumAdapter(Context context, List<OddnumBean> datas) {
+    public OddnumAdapter(Context context, ArrayList<DeliveryserviceBean> datas) {
         this.datas = datas;
         this.context = context;
     }
@@ -56,21 +55,21 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        final OddnumBean oddnumBean = datas.get(position);
+        final DeliveryserviceBean oddnumBean = datas.get(position);
 
-        holder.platform.setText(oddnumBean.caption);
-        holder.oddnum.setText(oddnumBean.oddnum);
+        holder.platform.setText(oddnumBean.getName());
+        holder.oddnum.setText(oddnumBean.getAddress());
 
         //拨打客户电话
-        if (Util.isEmpty(oddnumBean.customerPhone)) {
+        if (Util.isEmpty(oddnumBean.getPhone())) {
             holder.customerPhone.setText("未识别号码");
             holder.customerPhone.setClickable(false);
         } else {
-            holder.customerPhone.setText(oddnumBean.customerPhone);
+            holder.customerPhone.setText(oddnumBean.getPhone());
             holder.customerPhone.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    PhoneUtil.call(context, oddnumBean.customerPhone);
+                    PhoneUtil.call(context, oddnumBean.getPhone());
                 }
             });
         }
@@ -79,7 +78,7 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
         holder.cancel.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (datas.get(position).status == 9) {//订单已送达,无法修改
+                if (datas.get(position).getStatus() == 9) {//订单已送达,无法修改
                     holder.cancel.setChecked(!isChecked);
                     return;
                 }
@@ -119,7 +118,7 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
                             });
                     mMaterialDialog.show();
                 } else {//已送达, 无法取消
-                    if (datas.get(position).status == 9) {//订单已送达,无法修改
+                    if (datas.get(position).getStatus() == 9) {//订单已送达,无法修改
                         holder.ok.setChecked(true);
                     }
                 }
@@ -133,7 +132,7 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
             public void run() {
                 if (Util.isNetOk(context)) {
                     try {
-                        RTableControl.updateOddnumState(datas.get(position).oddnum, status);
+                        RTableControl.updateOddnumState(String.valueOf(datas.get(position).getSeller_order_identifier()), status);
                     } catch (SQLException e) {
                         e.printStackTrace();
                         EventBus.getDefault().post(new EventException());
@@ -143,7 +142,7 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
                         EventBus.getDefault().post(new EventException());
                         return;
                     }
-                    datas.get(position).status = status;
+                    datas.get(position).setStatus(status);
                     ((BaseActivity) context).hideDialogTip();
 //                    EventBus.getDefault().post(new EventOddnumOk());
                 } else {

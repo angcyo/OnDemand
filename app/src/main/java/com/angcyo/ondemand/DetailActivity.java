@@ -1,6 +1,7 @@
 package com.angcyo.ondemand;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -31,15 +32,16 @@ import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.Polyline;
 import com.amap.api.maps2d.model.PolylineOptions;
+import com.angcyo.ondemand.base.BaseActivity;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;
-import com.angcyo.ondemand.event.EventUpdateAdapter;
-import com.angcyo.ondemand.model.OddnumBean;
+import com.angcyo.ondemand.model.DeliveryserviceBean;
 import com.angcyo.ondemand.util.Util;
 import com.angcyo.ondemand.view.OddnumAdapter;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -51,6 +53,7 @@ import me.drakeet.materialdialog.MaterialDialog;
  */
 public class DetailActivity extends BaseActivity implements LocationSource, AMapLocationListener, SensorEventListener {
 
+    public static final String KEY_ODDNUM = "key_oddnum";
     private final int TIME_SENSOR = 100;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -69,6 +72,18 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
     private Marker mGPSMarker;
     private Polyline polyline;
     private PolylineOptions polyOption;
+    private ArrayList<DeliveryserviceBean> allTakeOddnum;
+
+    /**
+     * 带参数启动activity
+     */
+    public static void launch(BaseActivity activity, ArrayList<DeliveryserviceBean> beans) {
+        Intent intent = new Intent(activity, DetailActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList(KEY_ODDNUM, beans);
+        intent.putExtras(bundle);
+        activity.startActivity(intent);
+    }
 
     /**
      * 获取当前屏幕旋转角度
@@ -95,6 +110,12 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
     }
 
     @Override
+    protected void initBefore() {
+        super.initBefore();
+        allTakeOddnum = getIntent().getExtras().getParcelableArrayList(KEY_ODDNUM);
+    }
+
+    @Override
     protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_detail);
         ButterKnife.bind(this);
@@ -106,7 +127,7 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
 
         // 数据列表
         oddnumList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        oddnumList.setAdapter(new OddnumAdapter(this, MainActivity.oddnums));
+        oddnumList.setAdapter(new OddnumAdapter(this, allTakeOddnum));
 
         // 初始化传感器
         mSensorManager = (SensorManager) this.getSystemService(Context.SENSOR_SERVICE);
@@ -130,16 +151,13 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
     @Override
     public void onBackPressed() {
         boolean isOk = true;
-        for (OddnumBean bean : MainActivity.oddnums) {
-            if (bean.status != 9) {
+        for (DeliveryserviceBean bean : allTakeOddnum) {
+            if (bean.getStatus() != 9) {
                 isOk = false;
             }
         }
         if (isOk) {
-            MainActivity.oddnums.removeAll(MainActivity.oddnums);
             super.onBackPressed();
-            launchActivity(MainActivity.class);
-            EventBus.getDefault().post(new EventUpdateAdapter());
         } else {
             mMaterialDialog = new MaterialDialog(this)
                     .setTitle("提醒")
@@ -148,10 +166,7 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
                         @Override
                         public void onClick(View v) {
                             mMaterialDialog.dismiss();
-                            MainActivity.oddnums.removeAll(MainActivity.oddnums);
                             DetailActivity.super.onBackPressed();
-                            launchActivity(MainActivity.class);
-                            EventBus.getDefault().post(new EventUpdateAdapter());
                         }
                     })
                     .setNegativeButton("取消", new View.OnClickListener() {
