@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.angcyo.ondemand.base.RBaseAdapter;
 import com.angcyo.ondemand.components.RWorkService;
@@ -16,7 +17,9 @@ import com.angcyo.ondemand.control.RTableControl;
 import com.angcyo.ondemand.event.EventDeliveryservice;
 import com.angcyo.ondemand.event.EventNoNet;
 import com.angcyo.ondemand.model.DeliveryserviceBean;
+import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
+import com.angcyo.ondemand.view.CirclePathButton;
 import com.orhanobut.hawk.Hawk;
 
 import java.util.ArrayList;
@@ -171,9 +174,39 @@ public class Main2Activity extends BaseActivity {
         }
 
         @Override
-        protected void onBindView(RBaseViewHolder holder, int position, DeliveryserviceBean bean) {
+        protected void onBindView(RBaseViewHolder holder, int position, final DeliveryserviceBean bean) {
             holder.tV(R.id.platform).setText(bean.getCaption() + "");
             holder.tV(R.id.oddnum).setText(bean.getSeller_order_identifier() + "");
+            holder.tV(R.id.ec_platform).setText(bean.getEc_caption() + "");
+            holder.tV(R.id.address).setText(bean.getAddress() + "");
+
+            final CirclePathButton acceptButton = (CirclePathButton) holder.v(R.id.accept);//已取单
+            final CirclePathButton takeButton = (CirclePathButton) holder.v(R.id.take);//已取货
+            acceptButton.setSelected(bean.isAccept);
+            takeButton.setSelected(bean.isTake);
+
+            acceptButton.setOnSelectChanged(new CirclePathButton.OnSelectChanged() {
+                @Override
+                public void onSelectChanged(View view, boolean isSelect) {
+                    if (bean.isTake && !isSelect) {//已取货,不允许取消订单
+                        PopupTipWindow.showTip(mContext, "已取货订单,不允许此操作!");
+                        acceptButton.setSelected(true);
+                    }
+                    bean.isAccept = acceptButton.isSelected();
+                }
+            });
+            takeButton.setOnSelectChanged(new CirclePathButton.OnSelectChanged() {
+                @Override
+                public void onSelectChanged(View view, boolean isSelect) {
+                    if (!bean.isAccept && isSelect) {//未取单,就取货
+                        PopupTipWindow.showTip(mContext, "请先取单!");
+                        takeButton.setSelected(false);
+                    }
+                    bean.isTake = takeButton.isSelected();
+                }
+            });
+
+
         }
     }
 }

@@ -12,6 +12,28 @@ public class DeliveryserviceBean {
     String comment;//描述
     String dt_create;//创建时间
     String caption;//商家
+    String address;//目标地址
+    String ec_caption;//平台信息
+
+    public boolean isAccept = false;//是否已接单
+    public boolean isTake = false;//是否已取货
+
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getEc_caption() {
+        return ec_caption;
+    }
+
+    public void setEc_caption(String ec_caption) {
+        this.ec_caption = ec_caption;
+    }
 
     public int getSid() {
         return sid;

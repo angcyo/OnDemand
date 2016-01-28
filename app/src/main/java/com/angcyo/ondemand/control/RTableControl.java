@@ -570,6 +570,8 @@ public class RTableControl {
                 data.setComment(rs.getString(4));
                 data.setDt_create(rs.getString(5));
                 data.setCaption(rs.getString(6));
+                data.setAddress(rs.getString(7));
+                data.setEc_caption(rs.getString(8));
                 beans.add(data);
             }
             connection.close();
