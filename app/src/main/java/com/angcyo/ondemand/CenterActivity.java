@@ -13,9 +13,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.angcyo.ondemand.base.BaseActivity;
 import com.angcyo.ondemand.base.BaseFragment;
@@ -98,9 +96,20 @@ public class CenterActivity extends BaseActivity {
         }
 
         @Override
+        protected int getContentView() {
+            return R.layout.layout_refresh_recycler;
+        }
+
+        @Override
         protected void onLoadData() {
             refresh.setRefreshing(true);
             onRefresh();
+        }
+
+        @Override
+        protected void onOverlayRefresh(View v) {
+            super.onOverlayRefresh(v);
+            onLoadData();
         }
 
         @Override
@@ -110,14 +119,9 @@ public class CenterActivity extends BaseActivity {
         }
 
         @Override
-        protected View loadView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.layout_refresh_recycler, container, false);
-            ButterKnife.bind(this, view);
-            return view;
-        }
-
-        @Override
         protected void initView(View rootView) {
+            ButterKnife.bind(this, rootView);
+
             refresh.setOnRefreshListener(this);
             refresh.setColorSchemeResources(R.color.colorAccent);
             recycle.setLayoutManager(new LinearLayoutManager(mBaseActivity, LinearLayoutManager.VERTICAL, false));
@@ -146,10 +150,17 @@ public class CenterActivity extends BaseActivity {
         @Subscribe(threadMode = ThreadMode.MainThread)
         public void onEvent(EventDeliveryserviceHistory event) {
             hideDialogTip();
+            hideOverlayLayout();
             refresh.setRefreshing(false);
             if (event.isSucceed) {
-                itemAdapter.resetData(event.beans);
-                PopupTipWindow.showTip(mBaseActivity, "拉取到 " + event.beans.size() + "条数据");
+                if (event.beans.size() == 0) {
+                    showEmptyLayout();
+                } else {
+                    itemAdapter.resetData(event.beans);
+                    PopupTipWindow.showTip(mBaseActivity, "拉取到 " + event.beans.size() + "条数据");
+                }
+            } else {
+                showNonetLayout();
             }
             isLoaded = false;
         }
@@ -159,19 +170,21 @@ public class CenterActivity extends BaseActivity {
             if (!refresh.isRefreshing()) {
                 return;
             }
-
+            showLoadLayout();
             showDialogTip("拉取订单中...");
             RWorkService.addTask(new RWorkThread.TaskRunnable() {
                 @Override
                 public void run() {
                     if (Util.isNetOk(mBaseActivity)) {
                         EventDeliveryserviceHistory event = new EventDeliveryserviceHistory();
-                        ArrayList<DeliveryserviceBean> been = RTableControl.getAllDeliveryserviceInfo(
-                                OdApplication.userInfo.member.getSid(), 9, getTime());
-                        if (been.size() == 0) {
-                            event.isSucceed = false;
-                        } else {
+                        ArrayList<DeliveryserviceBean> been = null;
+                        try {
+                            been = RTableControl.getAllDeliveryserviceInfo(
+                                    OdApplication.userInfo.member.getSid(), 9, getTime());
                             event.isSucceed = true;
+                        } catch (Exception e) {
+                            event.isSucceed = false;
+
                         }
                         event.beans = been;
                         EventBus.getDefault().post(event);

@@ -45,7 +45,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     public ProgressFragment progressFragment = null;
     public MaterialDialog mMaterialDialog;
     protected LayoutInflater mLayoutInflater;
-    protected RBaseViewHolder mViewolder;
     protected ViewGroup mActivityLayout;
     protected ViewGroup mAppbarLayout;
     protected ViewGroup mFragmentLayout;
@@ -117,12 +116,18 @@ public abstract class BaseActivity extends AppCompatActivity {
         mNonetLayout.findViewById(R.id.nonet_refresh).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onNonetRefresh(v);
+                onOverlayRefresh(v);
+            }
+        });
+        mEmptyLayout.findViewById(R.id.empty_refresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onOverlayRefresh(v);
             }
         });
     }
 
-    protected void onNonetRefresh(View v) {
+    protected void onOverlayRefresh(View v) {
 
     }
 

@@ -88,26 +88,37 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
             hideDialogTip();
             ArrayList<DeliveryserviceBean> allAcceptOddnum = oddAdapter.getAllAcceptOddnum();
             final ArrayList<DeliveryserviceBean> allTakeOddnum = oddAdapter.getAllTakeOddnum();
-            if (allAcceptOddnum.size() > allTakeOddnum.size() && allTakeOddnum.size() > 0) {
-                showMaterialDialog("提示", "你还有未取货的订单, 是否继续?", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mMaterialDialog.dismiss();
-                        launchDetailActivity(allTakeOddnum);
-                    }
-                }, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mMaterialDialog.dismiss();
-                        return;
-                    }
-                }, null);
-            } else if (allAcceptOddnum.size() == 0 || allTakeOddnum.size() == 0) {
+            int allSize = oddAdapter.getAllDatas().size();
+            int acceptSize = allAcceptOddnum.size();
+            int takeSize = allTakeOddnum.size();
+            if (allSize == 0) {
                 PopupTipWindow.showTip(this, "没有订单需要配送");
-                return;
-            } else {
+            } else if (allSize == acceptSize && allSize == takeSize) {
                 launchDetailActivity(allTakeOddnum);
+            } else {
+                PopupTipWindow.showTip(this, "请确保所有订单都已取货.");
             }
+
+//            if (allAcceptOddnum.size() > allTakeOddnum.size() && allTakeOddnum.size() > 0) {
+//                showMaterialDialog("提示", "你还有未取货的订单, 是否继续?", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        mMaterialDialog.dismiss();
+//                        launchDetailActivity(allTakeOddnum);
+//                    }
+//                }, new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        mMaterialDialog.dismiss();
+//                        return;
+//                    }
+//                }, null);
+//            } else if (allAcceptOddnum.size() == 0 || allTakeOddnum.size() == 0) {
+//                PopupTipWindow.showTip(this, "没有订单需要配送");
+//                return;
+//            } else {
+//                launchDetailActivity(allTakeOddnum);
+//            }
         } else {
             showDialogTip("请等待...", true);
         }
@@ -196,6 +207,9 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
      * 刷新订单列表,首先判断之前修改状态的订单是否已完成,再追加新增的订单
      */
     private void onRefreshData() {
+        hideOverlayLayout();
+        showLoadLayout();
+        refresh.setRefreshing(true);
         showDialogTip("刷新订单中....");
         final ArrayList<DeliveryserviceBean> allAcceptOddnum = oddAdapter.getAllAcceptOddnum();
         RWorkService.addTask(new RWorkThread.TaskRunnable() {
@@ -203,13 +217,21 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
             public void run() {
                 if (Util.isNetOk(Main2Activity.this)) {
                     EventRefresh event = new EventRefresh();
-                    ArrayList<DeliveryserviceBean> beans = new ArrayList<DeliveryserviceBean>();
-                    for (DeliveryserviceBean bean : allAcceptOddnum) {
-                        if (!RTableControl.isOrderFinish(bean.getSeller_order_identifier())) {//保存未完成的订单
-                            beans.add(bean);
+                    ArrayList<DeliveryserviceBean> beans = new ArrayList<>();
+                    if (beans.size() == 0) {
+                        event.isSucceed = true;
+                    } else {
+                        for (DeliveryserviceBean bean : allAcceptOddnum) {
+                            try {
+                                if (!RTableControl.isOrderFinish(bean.getSeller_order_identifier())) {//保存未完成的订单
+                                    beans.add(bean);
+                                    event.isSucceed = true;
+                                }
+                            } catch (Exception e) {
+                                event.isSucceed = false;
+                            }
                         }
                     }
-                    event.isSucceed = true;
                     event.beans = beans;
                     EventBus.getDefault().post(event);
                 } else {
@@ -227,7 +249,17 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
             oldBeans.addAll(event.beans);
             setTitle("接单中:" + OdApplication.userInfo.member.getName_real() + "(" + event.beans.size() + ")");
             loadDeliveryservice();
+        } else {
+            hideDialogTip();
+            refresh.setRefreshing(false);
+            PopupTipWindow.showTip(this, "出现问题,请重试.");
         }
+    }
+
+    @Override
+    protected void onOverlayRefresh(View v) {
+        super.onOverlayRefresh(v);
+        onRefreshData();
     }
 
     @Override
@@ -269,11 +301,12 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
             public void run() {
                 if (Util.isNetOk(Main2Activity.this)) {
                     EventDeliveryservice event = new EventDeliveryservice();
-                    ArrayList<DeliveryserviceBean> been = RTableControl.getAllDeliveryservice2(OdApplication.userInfo.member.getSid());
-                    if (been.size() == 0) {
-                        event.isSucceed = false;
-                    } else {
+                    ArrayList<DeliveryserviceBean> been = null;
+                    try {
+                        been = RTableControl.getAllDeliveryservice2(OdApplication.userInfo.member.getSid());
                         event.isSucceed = true;
+                    } catch (Exception e) {
+                        event.isSucceed = false;
                     }
                     event.beans = been;
                     EventBus.getDefault().post(event);
@@ -294,7 +327,14 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
             if (oldBeans != null) {
                 oldSize = oldBeans.size();
             }
-            setTitle("接单中:" + OdApplication.userInfo.member.getName_real() + "(" + (event.beans.size() + oldSize) + ")");
+            int allSize = event.beans.size() + oldSize;
+            setTitle("接单中:" + OdApplication.userInfo.member.getName_real() + "(" + allSize + ")");
+            if (allSize == 0) {
+                showEmptyLayout();
+                return;
+            }
+        } else {
+            showNonetLayout();
         }
     }
 

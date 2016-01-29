@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorAccentBg"
-    android:fitsSystemWindows="true">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorAccentBg"
+                android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,22 +25,22 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.3"
                 android:text="姓名/电话"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/colorAccent"/>
 
             <!--<TextView-->
-                <!--android:layout_width="0dp"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_weight="0.2"-->
-                <!--android:text="客户电话"-->
-                <!--android:textColor="@color/colorAccent" />-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.2"-->
+            <!--android:text="客户电话"-->
+            <!--android:textColor="@color/colorAccent" />-->
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.4"
-                android:text="地址"
                 android:gravity="center_horizontal"
-                android:textColor="@color/colorAccent" />
+                android:text="地址"
+                android:textColor="@color/colorAccent"/>
 
             <TextView
                 android:layout_width="0dp"
@@ -56,7 +48,7 @@
                 android:layout_weight="0.3"
                 android:gravity="center"
                 android:text="操作命令"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/colorAccent"/>
 
         </LinearLayout>
 
@@ -64,12 +56,12 @@
             android:id="@+id/oddnum_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.6" />
+            android:layout_weight="0.6"/>
 
         <com.amap.api.maps2d.MapView
             android:id="@+id/map"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.4" />
+            android:layout_weight="0.4"/>
     </LinearLayout>
 </RelativeLayout>

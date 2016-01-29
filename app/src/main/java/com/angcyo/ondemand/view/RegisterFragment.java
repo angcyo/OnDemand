@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSpinner;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 
@@ -78,15 +76,10 @@ public class RegisterFragment extends BaseFragment {
     }
 
     @Override
-    protected View loadView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_register, container, false);
-        ButterKnife.bind(this, view);
-        EventBus.getDefault().register(this);
-        return view;
-    }
-
-    @Override
     protected void initView(View rootView) {
+        ButterKnife.bind(this, rootView);
+        EventBus.getDefault().register(this);
+
         phone.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -306,6 +299,11 @@ public class RegisterFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         e(new Exception().getStackTrace()[0].getMethodName());
+    }
+
+    @Override
+    protected int getContentView() {
+        return R.layout.fragment_register;
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.angcyo.ondemand;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -129,9 +128,9 @@ public class DetailActivity extends BaseActivity implements LocationSource, AMap
     protected void initView(Bundle savedInstanceState) {
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
-        setSupportActionBar(toolbar);
-        initWindow(R.color.colorAccent);
-        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
+//        setSupportActionBar(toolbar);
+//        initWindow(R.color.colorAccent);
+//        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
         setTitle("订单跟踪中:(" + allTakeOddnum.size() + ")");
 
         // 数据列表
