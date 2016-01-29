@@ -14,14 +14,15 @@ import com.angcyo.ondemand.base.BaseActivity;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
 import com.angcyo.ondemand.control.RTableControl;
-import com.angcyo.ondemand.event.EventException;
 import com.angcyo.ondemand.event.EventNoNet;
+import com.angcyo.ondemand.event.EventOddnumOk;
 import com.angcyo.ondemand.model.DeliveryserviceBean;
 import com.angcyo.ondemand.util.PhoneUtil;
 import com.angcyo.ondemand.util.Util;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -33,18 +34,21 @@ import me.drakeet.materialdialog.MaterialDialog;
  */
 public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder> {
 
-    ArrayList<DeliveryserviceBean> datas;
+    public ArrayList<DeliveryserviceBean> datas;
+    public AtomicInteger netCommandCount;//网络请求操作的次数,当大于零时,所有请求处理未完成
     Context context;
     MaterialDialog mMaterialDialog;
 
     public OddnumAdapter(Context context) {
         this.context = context;
         datas = new ArrayList<>();
+        netCommandCount = new AtomicInteger();
     }
 
     public OddnumAdapter(Context context, ArrayList<DeliveryserviceBean> datas) {
         this.datas = datas;
         this.context = context;
+        netCommandCount = new AtomicInteger();
     }
 
     @Override
@@ -131,20 +135,20 @@ public class OddnumAdapter extends RecyclerView.Adapter<OddnumAdapter.ViewHolder
             @Override
             public void run() {
                 if (Util.isNetOk(context)) {
+                    EventOddnumOk eventOddnumOk = new EventOddnumOk();
+                    eventOddnumOk.state = status;
                     try {
+                        netCommandCount.addAndGet(1);
                         RTableControl.updateOddnumState(String.valueOf(datas.get(position).getSeller_order_identifier()), status);
+                        eventOddnumOk.isSuccess = true;
                     } catch (SQLException e) {
                         e.printStackTrace();
-                        EventBus.getDefault().post(new EventException());
-                        return;
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
-                        EventBus.getDefault().post(new EventException());
-                        return;
                     }
                     datas.get(position).setStatus(status);
                     ((BaseActivity) context).hideDialogTip();
-//                    EventBus.getDefault().post(new EventOddnumOk());
+                    EventBus.getDefault().post(eventOddnumOk);
                 } else {
                     EventBus.getDefault().post(new EventNoNet());
                 }

@@ -49,7 +49,7 @@ public class PopupTipWindow {
         rootLayout.setPadding(20, 10, 10, 10);
         rootLayout.setGravity(Gravity.CENTER_VERTICAL);
         rootLayout.setSingleLine();
-        rootLayout.setBackgroundResource(android.support.design.R.color.accent_material_light);
+        rootLayout.setBackgroundResource(R.color.colorAccent);
     }
 
     public static void showTip(Context context, String tip) {

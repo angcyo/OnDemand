@@ -7,7 +7,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,16 +57,13 @@ public class Main2Activity extends BaseActivity implements SwipeRefreshLayout.On
 
     @Override
     protected int getContentView() {
-        return R.layout.activity_main2;
+        return R.layout.content_main2;
     }
 
     @Override
     protected void initView(Bundle savedInstanceState) {
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
     }
 
     @Override

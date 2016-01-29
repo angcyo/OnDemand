@@ -8,4 +8,5 @@
     <string-array name="trading_area">
         <item>请选择商圈</item>
     </string-array>
+    <string name="title_activity_test">TestActivity</string>
 </resources>

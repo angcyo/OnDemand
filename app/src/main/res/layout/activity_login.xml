@@ -1,190 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/colorAccentBg"
-                android:fitsSystemWindows="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <RelativeLayout
-        android:id="@+id/title_layout"
-        android:layout_width="match_parent"
-        android:background="?attr/colorPrimary"
-        android:layout_height="?attr/actionBarSize">
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/od_new"/>
-    </RelativeLayout>
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:visibility="gone"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay"/>
-
-    <FrameLayout
-        android:id="@+id/logo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:background="@color/colorAccent">
-
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:src="@drawable/logo_new"
-            android:visibility="gone"/>
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/container"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/title_layout">
+        android:background="@color/colorAccentBg">
 
-        <LinearLayout
+        <RelativeLayout
+            android:id="@+id/title_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:gravity="center_horizontal"
-            android:paddingTop="10dp"
-            android:orientation="vertical">
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary">
 
             <ImageView
-                android:id="@+id/logo_new"
                 android:layout_width="60dp"
-                android:background="@color/colorAccentBg"
-                android:layout_height="60dp"/>
+                android:layout_height="60dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/od_new" />
+        </RelativeLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        <FrameLayout
+            android:id="@+id/logo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/toolbar"
+            android:background="@color/colorAccent">
 
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/phone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:gravity="center"
-                    android:hint="手机号码"
-                    android:inputType="number"
-                    android:maxLength="11"
-                    android:singleLine="true"/>
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/pw"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:gravity="center"
-                    android:hint="登录密码"
-                    android:inputType="textPassword"
-                    android:singleLine="true"/>
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/company"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:gravity="center"
-                    android:hint="服务商家"
-                    android:singleLine="true"
-                    tools:visibility="gone"/>
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.v7.widget.AppCompatCheckBox
-                android:id="@+id/cbUseSeller"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:text="使用服务商家登录"
-                tools:visibility="gone"/>
+                android:src="@drawable/logo_new"
+                android:visibility="gone" />
+        </FrameLayout>
 
-            <!--记住密码, 明文密码-->
-            <android.support.v7.widget.LinearLayoutCompat
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/title_layout">
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="10dp">
+
+                <ImageView
+                    android:id="@+id/logo_new"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@color/colorAccentBg" />
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.AppCompatEditText
+                        android:id="@+id/phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:gravity="center"
+                        android:hint="手机号码"
+                        android:inputType="number"
+                        android:maxLength="11"
+                        android:singleLine="true" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.AppCompatEditText
+                        android:id="@+id/pw"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:gravity="center"
+                        android:hint="登录密码"
+                        android:inputType="textPassword"
+                        android:singleLine="true" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.AppCompatEditText
+                        android:id="@+id/company"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:gravity="center"
+                        android:hint="服务商家"
+                        android:singleLine="true"
+                        tools:visibility="gone" />
+                </android.support.design.widget.TextInputLayout>
 
                 <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/remember"
-                    android:layout_width="0dp"
-                    android:textColor="@color/colorAccent"
-                    android:text="记住密码"
-                    android:layout_marginLeft="10dp"
+                    android:id="@+id/cbUseSeller"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:text="使用服务商家登录"
+                    tools:visibility="gone" />
+
+                <!--记住密码, 明文密码-->
+                <android.support.v7.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/remember"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="记住密码"
+                        android:textColor="@color/colorAccent" />
+
+                    <android.support.v7.widget.AppCompatCheckBox
+                        android:id="@+id/show"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="显示密码"
+                        android:textColor="@color/colorAccent" />
+                </android.support.v7.widget.LinearLayoutCompat>
+
+                <!--登录,注册按钮-->
+                <android.support.v7.widget.LinearLayoutCompat
+                    android:id="@+id/control_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"/>
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/show"
-                    android:layout_width="0dp"
-                    android:textColor="@color/colorAccent"
-                    android:text="显示密码"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"/>
-            </android.support.v7.widget.LinearLayoutCompat>
+                    <com.angcyo.ondemand.view.PathButton
+                        android:id="@+id/login"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:text="登录"
+                        android:textColor="@color/colorAccent"
+                        app:pathColor="@color/colorAccent"
+                        app:pathWidth="2dp" />
 
-            <!--登录,注册按钮-->
-            <android.support.v7.widget.LinearLayoutCompat
-                android:id="@+id/control_layout"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                    <com.angcyo.ondemand.view.PathButton
+                        android:id="@+id/register"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:text="注册"
+                        android:textColor="@color/colorAccent"
+                        app:pathColor="@color/colorAccent"
+                        app:pathWidth="2dp" />
 
-                <com.angcyo.ondemand.view.PathButton
-                    android:id="@+id/login"
-                    android:layout_width="0dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:background="@null"
-                    android:textColor="@color/colorAccent"
-                    app:pathColor="@color/colorAccent"
-                    android:text="登录"
-                    app:pathWidth="2dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"/>
-
-                <com.angcyo.ondemand.view.PathButton
-                    android:id="@+id/register"
-                    android:layout_width="0dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:background="@null"
-                    android:textColor="@color/colorAccent"
-                    app:pathColor="@color/colorAccent"
-                    app:pathWidth="2dp"
-                    android:text="注册"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"/>
-
-                <!--<android.support.v7.widget.AppCompatButton-->
+                    <!--<android.support.v7.widget.AppCompatButton-->
                     <!--android:id="@+id/login"-->
                     <!--android:layout_width="0dp"-->
                     <!--android:layout_height="wrap_content"-->
@@ -195,7 +194,7 @@
                     <!--android:text="登录"-->
                     <!--android:textColor="@android:color/white"/>-->
 
-                <!--<android.support.v7.widget.AppCompatButton-->
+                    <!--<android.support.v7.widget.AppCompatButton-->
                     <!--android:id="@+id/register"-->
                     <!--android:layout_width="0dp"-->
                     <!--android:layout_height="wrap_content"-->
@@ -205,17 +204,18 @@
                     <!--android:gravity="center"-->
                     <!--android:text="注册"-->
                     <!--android:textColor="@android:color/white"/>-->
-            </android.support.v7.widget.LinearLayoutCompat>
-        </LinearLayout>
+                </android.support.v7.widget.LinearLayoutCompat>
+            </LinearLayout>
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/app_ver"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right|bottom"
-            android:layout_margin="2dp"
-            android:paddingRight="8dp"
-            android:textColor="@color/colorAccent"
-            tools:text="版本:1.2.3r"/>
-    </FrameLayout>
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/app_ver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|bottom"
+                android:layout_margin="2dp"
+                android:paddingRight="8dp"
+                android:textColor="@color/colorAccent"
+                tools:text="版本:1.2.3r" />
+        </FrameLayout>
+    </RelativeLayout>
 </RelativeLayout>

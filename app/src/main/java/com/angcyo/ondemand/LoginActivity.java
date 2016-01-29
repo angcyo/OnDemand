@@ -1,11 +1,9 @@
 package com.angcyo.ondemand;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -17,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.angcyo.ondemand.base.BaseActivity;
+import com.angcyo.ondemand.base.BaseFragment;
 import com.angcyo.ondemand.components.RConstant;
 import com.angcyo.ondemand.components.RWorkService;
 import com.angcyo.ondemand.components.RWorkThread;
@@ -30,7 +29,6 @@ import com.angcyo.ondemand.model.UserInfo;
 import com.angcyo.ondemand.util.MD5;
 import com.angcyo.ondemand.util.PopupTipWindow;
 import com.angcyo.ondemand.util.Util;
-import com.angcyo.ondemand.base.BaseFragment;
 import com.angcyo.ondemand.view.RegisterFragment;
 import com.orhanobut.hawk.Hawk;
 
@@ -53,8 +51,6 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
     public static String KEY_SHOW_PW = "show_pw";
     public static String KEY_USER_COMPANY = "user_company";
     public static boolean useSellerLogin = false;//使用商家匹配登录, 默认使用物流公司登录
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
     @Bind(R.id.phone)
     EditText phone;
     @Bind(R.id.pw)
@@ -96,11 +92,9 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
 
     @Override
     protected void initView(Bundle savedInstanceState) {
+        setContentView(getContentView());
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
-        setSupportActionBar(toolbar);
-        initWindow(R.color.colorAccent);
-        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
     }
 
     @Override
@@ -127,6 +121,8 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
             super.onBackPressed();
         }
     }
+
+
 
     @Override
     protected int getContentView() {
@@ -336,16 +332,27 @@ public class LoginActivity extends BaseActivity implements View.OnLongClickListe
             @Override
             public void onGlobalLayout() {
                 int height = controlLayout.getHeight();
-                if (height < controlLayoutHeight) {
+                if (controlLayoutHeight - height > 100) {
                     onSoftInputEvent(true);
                 } else {
                     onSoftInputEvent(false);
                 }
             }
         });
+//        mAppbarLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+//                if (bottom > getStatusBarHeight(LoginActivity.this)) {//键盘弹出
+//                    onSoftInputEvent(true);
+//                } else {
+//                    onSoftInputEvent(false);
+//                }
+//            }
+//        });
     }
 
     private void onSoftInputEvent(boolean isShow) {
+//        mAppbarLayout.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, getStatusBarHeight(this)));
         logoNew.setVisibility(isShow ? View.GONE : View.VISIBLE);
     }
 }
