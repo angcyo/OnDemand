@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">昂递配送</string>
+    <string name="app_name">O-递</string>
     <string name="action_settings">注销登录</string>
     <string name="action_center">个人中心</string>
     <string name="refresh">更新订单</string>

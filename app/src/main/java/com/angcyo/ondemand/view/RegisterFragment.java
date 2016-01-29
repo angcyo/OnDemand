@@ -229,6 +229,11 @@ public class RegisterFragment extends BaseFragment {
             return false;
         }
 
+        if (tradingArea.getSelectedItemPosition() == 0) {
+            PopupTipWindow.showTip(mBaseActivity, "请选择商圈.");
+            return false;
+        }
+
         member.setPsw(MD5.toMD5(pwStr));
         if (tradingArea.getSelectedItemPosition() != 0 && tableTradingAreas != null && tableTradingAreas.size() > 0) {
             member.setId_tradingarea(tableTradingAreas.get(tradingArea.getSelectedItemPosition() - 1).getSid());//商圈id
