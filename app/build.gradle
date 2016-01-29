@@ -14,11 +14,13 @@ android {
     buildTypes {
         debug {
             manifestPlaceholders = [API_KEY: "cbfe54d57b87ab6a50a7649efe0409ea"]
+            debuggable true
         }
         release {
             manifestPlaceholders = [API_KEY: "65080270b9dc7b592815793362a45030"]
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
         }
     }
     applicationVariants.all { variant ->

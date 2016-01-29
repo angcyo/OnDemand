@@ -18,6 +18,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
+import com.angcyo.ondemand.BuildConfig;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -143,9 +145,12 @@ public class Util {
      * @return 按照yyyy-MM-dd 格式返回日期
      */
     public static String getDate() {
+        if (BuildConfig.DEBUG) {
+            return "2015-11-13";
+        }
+
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         return format.format(new Date());
-//        return "2015-11-12";
     }
 
     /**
