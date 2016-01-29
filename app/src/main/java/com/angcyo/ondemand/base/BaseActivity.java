@@ -140,7 +140,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         setSupportActionBar(mToolbar);
 
-        /*设置内容布局*//////
+        /*设置内容布局*/
         mViewHolder = new RBaseViewHolder(mLayoutInflater.inflate(getContentView(), mContainerLayout, true));
     }
 
