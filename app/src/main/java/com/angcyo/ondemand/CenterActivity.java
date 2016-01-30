@@ -246,7 +246,7 @@ public class CenterActivity extends BaseActivity {
             fragments.add(CenterActivity.CommonFragment.newInstance(CenterActivity.CommonFragment.TYPE_HISTORY));
         }
 
-        public String[] tabTitles = new String[]{"今天的订单", "历史订单"};
+        public String[] tabTitles = new String[]{"今日订单", "历史订单"};
 
         public CenterAdapter(FragmentManager fm) {
             super(fm);
