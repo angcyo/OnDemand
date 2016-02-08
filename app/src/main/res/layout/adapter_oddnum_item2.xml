@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <!--商圈,商家-->
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4">
+
+            <TextView
+                android:id="@+id/platform"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textSize="16sp"
+                tools:text="商圈" />
+
+            <TextView
+                android:id="@+id/ec_platform"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/platform"
+                android:textSize="12sp"
+                android:textColor="#a3a3a3"
+                android:singleLine="true"
+                android:ellipsize="end"
+                tools:text="饿了么" />
+        </RelativeLayout>
+
+
+        <!--单号,地址-->
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.6">
+
+            <TextView
+                android:id="@+id/oddnum"
+                android:layout_width="wrap_content"
+                android:textSize="16sp"
+                android:layout_height="wrap_content"
+                tools:text="订单号" />
+
+            <TextView
+                android:id="@+id/address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/oddnum"
+                android:layout_weight="0.6"
+                android:textSize="12sp"
+                android:textColor="#a3a3a3"
+                tools:text="富龙山庄" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="3dp">
+
+            <com.angcyo.ondemand.view.CirclePathButton
+                android:id="@+id/accept"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerInParent="true"
+                android:padding="5dp"
+                app:circlePathBorderColor="@color/colorAccent"
+                app:circlePathColor="@color/colorAccent"
+                app:circlePathSelectColor="@color/colorAccent"
+                app:circlePathSelectStyle="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dp">
+
+            <com.angcyo.ondemand.view.CirclePathButton
+                android:id="@+id/take"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerInParent="true"
+                android:padding="5dp"
+                app:circlePathBorderColor="@color/red_dark"
+                app:circlePathColor="@color/red_dark"
+                app:circlePathSelectColor="@color/red_dark"
+                app:circlePathSelectStyle="true" />
+        </RelativeLayout>
+
+
+        <!--<TextView-->
+        <!--android:id="@+id/customerPhone"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="0.3"-->
+        <!--tools:text="客户电话" />-->
+
+        <!--<LinearLayout-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="0.3"-->
+        <!--android:gravity="center"-->
+        <!--android:orientation="horizontal">-->
+
+        <!--<CheckBox-->
+        <!--android:id="@+id/cancel"-->
+        <!--style="@style/StyleCheckButton"-->
+        <!--android:background="@drawable/check_bt_red_selector"-->
+        <!--android:text="撤销" />-->
+
+        <!--<CheckBox-->
+        <!--android:id="@+id/ok"-->
+        <!--style="@style/StyleCheckButton"-->
+        <!--android:text="送达" />-->
+        <!--</LinearLayout>-->
+    </LinearLayout>
+</RelativeLayout>

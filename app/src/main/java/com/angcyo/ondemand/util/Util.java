@@ -143,6 +143,13 @@ public class Util {
      * @return 按照yyyy-MM-dd 格式返回日期
      */
     public static String getDate() {
+//        if (BuildConfig.DEBUG) {
+//            return "2015-11-13";
+//        }
+//        if (isTest) {
+//            return "2015-11-13";
+//        }
+
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         return format.format(new Date());
     }
@@ -198,7 +205,7 @@ public class Util {
 
     /**
      * 取得device的IP address
-     * <p>
+     * <p/>
      * 需要权限 android.permission.ACCESS_WIFI_STATE
      *
      * @param context

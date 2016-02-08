@@ -16,6 +16,8 @@ public class OdApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Hawk.init(this).build();
-        startService(new Intent("work_service"));
+        Intent service = new Intent("work_service");
+        service.setPackage(getPackageName());
+        startService(service);
     }
 }

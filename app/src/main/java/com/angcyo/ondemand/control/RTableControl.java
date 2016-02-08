@@ -1,12 +1,15 @@
 package com.angcyo.ondemand.control;
 
+import com.angcyo.ondemand.OdApplication;
 import com.angcyo.ondemand.components.RConstant;
+import com.angcyo.ondemand.model.DeliveryserviceBean;
 import com.angcyo.ondemand.model.TableCompany;
 import com.angcyo.ondemand.model.TableCustomer;
 import com.angcyo.ondemand.model.TableDeliveryservice;
 import com.angcyo.ondemand.model.TableMember;
 import com.angcyo.ondemand.model.TablePlatform;
 import com.angcyo.ondemand.model.TableSellerIndex;
+import com.angcyo.ondemand.model.TableTradingArea;
 import com.angcyo.ondemand.util.Util;
 
 import java.sql.CallableStatement;
@@ -135,7 +138,8 @@ public class RTableControl {
         List<String> des = new ArrayList<>();
         for (TableDeliveryservice de : RTableControl.deliveryservices) {
             try {
-                if (isToady(de.getDt_create())) {
+                if (isToady(de.getDt_create()) && de.getStatus() != 9
+                        && de.getSid_seller() == OdApplication.userInfo.sellerIndex.getSid()) {//今天的订单,并且订单状态是未完成,并且订单是当前登录的服务商家
                     des.add(de.getSeller_order_identifier());
                     deliveryservicesToday.add(de);
                 }
@@ -189,6 +193,7 @@ public class RTableControl {
                 data.setId_company(rs.getInt(5));
                 data.setOnline(rs.getString(6));
                 data.setPsw(rs.getString(7));
+                data.setId_tradingarea(rs.getInt(8));//v2.0 新增
                 members.add(data);
             }
             connection.close();
@@ -358,8 +363,9 @@ public class RTableControl {
         Connection connection;
         connection = getDb();
         Statement statement = connection.createStatement();
-        String queryString = String.format("UPDATE order_deliveryservice set status = %d , dt_end = '%s' WHERE seller_order_identifier = '%s'",
-                status, Util.getDateAndTime(), seller_order_identifier);
+        String queryString = String.format("UPDATE order_deliveryservice set status = %d , dt_end = '%s' " +
+                        "WHERE seller_order_identifier = '%s' and dt_create>='%s'",
+                status, Util.getDateAndTime(), seller_order_identifier, Util.getDate());
         statement.executeUpdate(queryString);
         connection.close();
     }
@@ -428,4 +434,190 @@ public class RTableControl {
         return conn;
     }
 
+
+    /**
+     * 2016-1-18 v2.0 修改
+     */
+
+    /**
+     * 添加配送员
+     *
+     * @param member the member
+     */
+    public static int addMember(TableMember member) throws SQLException, ClassNotFoundException {
+        Connection connection;
+        TableMember data;
+        connection = getDb();
+        Statement statement = connection.createStatement();
+        //INSERT INTO ds_member VALUES ('nickname','name','phone',-1,'2015-01-13 11:11','psw',1)
+        String queryString = String.format("INSERT INTO ds_member VALUES ('%s','%s','%s',%d,'%s','%s',%d)",
+                member.getName_login(), member.getName_real(), member.getPhone(),
+                member.getId_company(), Util.getDateAndTime(), member.getPsw(), member.getId_tradingarea());
+        int row = statement.executeUpdate(queryString);//返回受影响的行数
+        connection.close();
+        return row;
+    }
+
+
+    /**
+     * 判断用户是否存在
+     *
+     * @param phone 用户手机号码
+     * @return the boolean
+     */
+    public static boolean isMemberExist(String phone) {
+        boolean result = false;
+        Connection connection;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String queryString = String.format("SELECT * FROM ds_member WHERE phone = '%s'",
+                    phone);
+            ResultSet rs = statement.executeQuery(queryString);
+            result = rs.next();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    /**
+     * 判断订单状态是否已完成
+     */
+    public static boolean isOrderFinish(String seller_order_identifier) {
+        boolean result = false;
+        Connection connection;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String rawSql = "SELECT * from order_deliveryservice WHERE seller_order_identifier='%s' and status=9  and dt_create>='%s'";
+            String queryString = String.format(rawSql,
+                    seller_order_identifier, Util.getDate());
+            ResultSet rs = statement.executeQuery(queryString);
+            result = rs.next();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    /**
+     * 返回登录成功后的用户信息
+     */
+    public static TableMember getLoginMember(String phone, String md5Pwd) {
+        TableMember member = null;
+        Connection connection;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String queryString = String.format("SELECT * FROM ds_member WHERE phone = '%s' AND psw = '%s'",
+                    phone, md5Pwd);
+            ResultSet rs = statement.executeQuery(queryString);
+            while (rs.next()) {
+                member = new TableMember();
+                member.setSid(rs.getInt(1));
+                member.setName_login(rs.getString(2));
+                member.setName_real(rs.getString(3));
+                member.setPhone(rs.getString(4));
+                member.setId_company(rs.getInt(5));
+                member.setOnline(rs.getString(6));
+                member.setPsw(rs.getString(7));
+                member.setId_tradingarea(rs.getInt(8));//v2.0 新增
+                break;//返回第一个
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return member;
+    }
+
+    /**
+     * 获取所有商圈
+     */
+    public static ArrayList<TableTradingArea> getAllTradingArea() {
+        ArrayList<TableTradingArea> tradingAreas = new ArrayList<>();
+        Connection connection;
+        TableTradingArea data;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String queryString = "SELECT * FROM od_tradingarea";
+            ResultSet rs = statement.executeQuery(queryString);
+            while (rs.next()) {
+                data = new TableTradingArea();
+                data.setPid(rs.getInt(1));
+                data.setSid(rs.getInt(2));
+                data.setDscrp(rs.getString(3));
+                data.setSeqc(rs.getInt(4));
+                data.setClsid(rs.getInt(5));
+                tradingAreas.add(data);
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return tradingAreas;
+    }
+
+    /**
+     * 获取配送员和商圈都相同,切状态为0,今天的订单
+     */
+    public static ArrayList<DeliveryserviceBean> getAllDeliveryservice2(int memberSid) {
+        return getAllDeliveryserviceInfo(memberSid, 0, Util.getDate());
+    }
+
+    /**
+     * 获取配送员和商圈都相同, 获取time 之后所有完成的订单
+     */
+    public static ArrayList<DeliveryserviceBean> getAllDeliveryserviceFinish(int memberSid, String time) {
+        return getAllDeliveryserviceInfo(memberSid, 9, time);
+    }
+
+    public static ArrayList<DeliveryserviceBean> getAllDeliveryserviceInfo(int memberSid, int state, String time) {
+        //select * from dbo.get_tradingarea_order_seller(50) where  status=0 and dt_create>='2015-11-16 12:00'
+        ArrayList<DeliveryserviceBean> beans = new ArrayList<>();
+        Connection connection;
+        DeliveryserviceBean data;
+        try {
+            connection = getDb();
+            Statement statement = connection.createStatement();
+            String rawSql = "select * from dbo.get_tradingarea_order_seller(%d) where  status=%d and dt_create>='%s'";
+            String queryString = String.format(rawSql, memberSid, state, time);
+            ResultSet rs = statement.executeQuery(queryString);
+            while (rs.next()) {
+                data = new DeliveryserviceBean();
+                data.setSid(rs.getInt(1));
+                data.setSeller_order_identifier(rs.getString(2));
+                data.setStatus(rs.getInt(3));
+                data.setComment(rs.getString(4));
+                data.setDt_create(rs.getString(5));
+                data.setCaption(rs.getString(6));
+                data.setAddress(rs.getString(7));
+                data.setEc_caption(rs.getString(8));
+                data.setName(rs.getString(9));
+                data.setPhone(rs.getString(10));
+                beans.add(data);
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return beans;
+    }
 }

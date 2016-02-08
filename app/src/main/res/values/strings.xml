@@ -1,5 +1,12 @@
 <resources>
-    <string name="app_name">昂递配送</string>
+    <string name="app_name">O-递</string>
     <string name="action_settings">注销登录</string>
-    <string name="refresh">更新数据</string>
+    <string name="action_center">个人中心</string>
+    <string name="refresh">更新订单</string>
+    <string name="change_seller">更换商家</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string-array name="trading_area">
+        <item>请选择商圈</item>
+    </string-array>
+    <string name="title_activity_test">TestActivity</string>
 </resources>

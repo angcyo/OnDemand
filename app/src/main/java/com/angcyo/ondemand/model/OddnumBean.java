@@ -12,6 +12,7 @@ public class OddnumBean {
 
     public int sid_seller = 0;//商户id
     public int sid_customer = 0;//消费者id
+    public String customerPhone;//消费者手机号码
 
     public int status = 2;//订单的状态 //订单状态（0待命 1锁单 2派送中 3派送丢失 4已撤销 9客户已收）
 

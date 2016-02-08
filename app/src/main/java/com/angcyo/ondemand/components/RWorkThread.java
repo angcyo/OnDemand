@@ -1,6 +1,8 @@
 package com.angcyo.ondemand.components;
 
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by angcyo on 15-09-12-012.
@@ -8,6 +10,12 @@ import java.util.Vector;
 public class RWorkThread extends Thread {
 
     private Vector<TaskRunnable> workTask;
+
+    private static ExecutorService service = null;
+
+    static {
+        service = Executors.newCachedThreadPool();
+    }
 
     public RWorkThread() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
@@ -38,7 +46,8 @@ public class RWorkThread extends Thread {
                     if (task == null) {
                         RWorkThread.this.wait();//任务为空,等待添加任务
                     } else {
-                        task.run();//否则执行任务
+//                        task.run();//否则执行任务
+                        service.execute(task);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

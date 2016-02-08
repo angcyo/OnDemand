@@ -21,12 +21,20 @@ import com.angcyo.ondemand.util.Util;
 public class ProgressFragment extends BaseDialogFragment {
 
     private static String KEY_TIP = "tip";
+    private static String KEY_CANCEL = "cancel";
     private String tip;
+    private boolean cancel;
+    private TextView textView;
 
     public static ProgressFragment newInstance(@NonNull String tip) {
+        return newInstance(tip, false);
+    }
+
+    public static ProgressFragment newInstance(@NonNull String tip, boolean cancel) {
         ProgressFragment progressFragment = new ProgressFragment();
         Bundle args = new Bundle();
         args.putString(KEY_TIP, tip);
+        args.putBoolean(KEY_CANCEL, cancel);
         progressFragment.setArguments(args);
         return progressFragment;
     }
@@ -45,7 +53,7 @@ public class ProgressFragment extends BaseDialogFragment {
         linearLayout.addView(progressBar, new LinearLayout.LayoutParams(barSize, barSize));
 
         if (!Util.isEmpty(tip)) {
-            TextView textView = new TextView(getActivity());
+            textView = new TextView(getActivity());
             textView.setPadding(0, 0, (int) getResources().getDimension(R.dimen.layout_margin), 0);
             textView.setText(tip);
             textView.setSingleLine();
@@ -63,6 +71,14 @@ public class ProgressFragment extends BaseDialogFragment {
     protected void initViewBefore(Bundle savedInstanceState) {
         super.initViewBefore(savedInstanceState);
         tip = getArguments().getString(KEY_TIP, "");
+        cancel = getArguments().getBoolean(KEY_CANCEL, cancel);
+        setCancelable(cancel);
+    }
+
+    public void updateText(String text) {
+        if (textView != null) {
+            textView.setText(text);
+        }
     }
 
     @Override

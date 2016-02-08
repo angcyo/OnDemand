@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorAccentBg"
+    android:clickable="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:background="@color/colorAccent"
+                android:textColor="@android:color/white"
+                android:text="所有项,均为必填项"
+                android:gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_height="50dp"/>
+
+            <!--昵称-->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/nick_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="昵称"
+                    android:inputType="text"
+                    android:maxLength="5"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <!--注册姓名-->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="姓名"
+                    android:inputType="text"
+                    android:maxLength="5"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <!--省份证号码-->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/card_num"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="身份证号码"
+                    android:inputType="numberSigned"
+                    android:maxLength="18"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <!--家庭住址-->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/family_addrs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="家庭住址"
+                    android:inputType="text"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <!--现居地-->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/now_addrs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="现居地"
+                    android:inputType="text"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="登录手机号码"
+                    android:inputType="number"
+                    android:maxLength="11"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <!--密码-->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/pw"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="密码"
+                    android:inputType="textPassword"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <!--确认密码-->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/pw_rp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:hint="确认密码"
+                    android:inputType="textPassword"
+                    android:singleLine="true"/>
+            </android.support.design.widget.TextInputLayout>
+
+
+            <!--服务商圈-->
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/trading_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:padding="10dp"
+                android:entries="@array/trading_area"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <com.angcyo.ondemand.view.PathButton
+                android:id="@+id/register_member"
+                android:layout_width="0dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@null"
+                android:textColor="@color/colorAccent"
+                app:pathColor="@color/colorAccent"
+                android:text="注&#160;&#160;册"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+
+            <!--<android.support.v7.widget.AppCompatButton-->
+                <!--android:id="@+id/register_member"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_margin="10dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:background="@drawable/login_bg_selector"-->
+                <!--android:gravity="center"-->
+                <!--android:text="注册"-->
+                <!--android:textColor="@android:color/white"/>-->
+        </android.support.v7.widget.LinearLayoutCompat>
+    </RelativeLayout>
+</RelativeLayout>
